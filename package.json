@@ -10,7 +10,9 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node build/index.js",
-    "inspect": "npx @modelcontextprotocol/inspector build/index.js"
+    "inspect": "npx @modelcontextprotocol/inspector build/index.js",
+    "test": "node --test build/tests/api-contract.test.js",
+    "test:build": "tsc && node --test build/tests/api-contract.test.js"
   },
   "keywords": [
     "mcp",
