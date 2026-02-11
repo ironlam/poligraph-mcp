@@ -53,6 +53,7 @@ interface PoliticianDetail extends PoliticianListItem {
   mandates: Mandate[];
   declarations: Declaration[];
   affairsCount: number;
+  factchecksCount?: number;
 }
 
 function formatPoliticianSummary(p: PoliticianListItem): string {
@@ -129,6 +130,12 @@ function formatPoliticianDetail(p: PoliticianDetail): string {
     lines.push("");
     lines.push(`## Affaires judiciaires : ${p.affairsCount}`);
     lines.push(`Utilisez l'outil get_politician_affairs avec le slug "${p.slug}" pour les détails.`);
+  }
+
+  if (p.factchecksCount && p.factchecksCount > 0) {
+    lines.push("");
+    lines.push(`## Fact-checks : ${p.factchecksCount}`);
+    lines.push(`Utilisez l'outil get_politician_factchecks avec le slug "${p.slug}" pour les détails.`);
   }
 
   lines.push("");

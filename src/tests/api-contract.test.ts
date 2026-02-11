@@ -315,3 +315,85 @@ describe("GET /api/search/advanced", () => {
     }
   });
 });
+
+// ─── Fact-checks ───────────────────────────────────────────────
+
+describe("GET /api/factchecks", () => {
+  it("returns paginated fact-checks with politician mentions", async () => {
+    const data = await fetchJSON<Record<string, unknown>>("/api/factchecks?limit=2");
+
+    assert.ok(Array.isArray(data.data), "data should be an array");
+    assert.ok(typeof data.pagination === "object" && data.pagination !== null);
+    assertPagination(data.pagination as Record<string, unknown>);
+
+    const items = data.data as Record<string, unknown>[];
+    assert.ok(items.length > 0, "should return fact-checks");
+
+    const fc = items[0];
+    assertString(fc.id, "id");
+    assertString(fc.claimText, "claimText");
+    assertString(fc.title, "title");
+    assertString(fc.verdict, "verdict");
+    assertString(fc.verdictRating, "verdictRating");
+    assertString(fc.source, "source");
+    assertString(fc.sourceUrl, "sourceUrl");
+    assertString(fc.publishedAt, "publishedAt");
+
+    // Politicians array
+    assert.ok(Array.isArray(fc.politicians), "politicians should be an array");
+    const pols = fc.politicians as Record<string, unknown>[];
+    if (pols.length > 0) {
+      assertString(pols[0].id, "politician.id");
+      assertString(pols[0].slug, "politician.slug");
+      assertString(pols[0].fullName, "politician.fullName");
+    }
+  });
+
+  it("verdict filter works", async () => {
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/factchecks?verdict=FALSE&limit=2",
+    );
+    const items = data.data as Record<string, unknown>[];
+    for (const fc of items) {
+      assert.equal(fc.verdictRating, "FALSE", "all results should be FALSE");
+    }
+  });
+});
+
+describe("GET /api/politiques/:slug/factchecks", () => {
+  it("returns fact-checks for a politician", async () => {
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/politiques/emmanuel-macron/factchecks?limit=2",
+    );
+
+    // Politician summary
+    assert.ok(typeof data.politician === "object" && data.politician !== null);
+    const pol = data.politician as Record<string, unknown>;
+    assertString(pol.slug, "politician.slug");
+    assertString(pol.fullName, "politician.fullName");
+
+    // Fact-checks array
+    assert.ok(Array.isArray(data.factchecks), "factchecks should be an array");
+    assertNumber(data.total, "total");
+
+    assert.ok(typeof data.pagination === "object" && data.pagination !== null);
+    assertPagination(data.pagination as Record<string, unknown>);
+
+    const fcs = data.factchecks as Record<string, unknown>[];
+    if (fcs.length > 0) {
+      const fc = fcs[0];
+      assertString(fc.id, "factcheck.id");
+      assertString(fc.title, "factcheck.title");
+      assertString(fc.verdictRating, "factcheck.verdictRating");
+      assertString(fc.source, "factcheck.source");
+      assertString(fc.sourceUrl, "factcheck.sourceUrl");
+    }
+  });
+});
+
+describe("GET /api/politiques/:slug (factchecksCount)", () => {
+  it("includes factchecksCount field", async () => {
+    const data = await fetchJSON<Record<string, unknown>>("/api/politiques/emmanuel-macron");
+    assertNumber(data.factchecksCount, "factchecksCount");
+  });
+});
