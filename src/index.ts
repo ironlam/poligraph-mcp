@@ -6,6 +6,7 @@ import { registerPoliticianTools } from "./tools/politicians.js";
 import { registerAffairTools } from "./tools/affairs.js";
 import { registerVoteTools } from "./tools/votes.js";
 import { registerLegislationTools } from "./tools/legislation.js";
+import { registerFactCheckTools } from "./tools/factchecks.js";
 
 const server = new McpServer({
   name: "transparence-politique",
@@ -17,6 +18,7 @@ registerPoliticianTools(server);
 registerAffairTools(server);
 registerVoteTools(server);
 registerLegislationTools(server);
+registerFactCheckTools(server);
 
 // Connect via stdio transport
 const transport = new StdioServerTransport();
