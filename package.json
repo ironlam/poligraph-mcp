@@ -1,0 +1,32 @@
+{
+  "name": "transparence-politique-mcp",
+  "version": "1.0.0",
+  "description": "Serveur MCP pour accéder aux données de Transparence Politique en langage naturel",
+  "type": "module",
+  "bin": {
+    "transparence-politique-mcp": "build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node build/index.js",
+    "inspect": "npx @modelcontextprotocol/inspector build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "transparence",
+    "politique",
+    "france",
+    "claude"
+  ],
+  "author": "ironlam",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "typescript": "^5.7.0"
+  }
+}
