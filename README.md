@@ -7,8 +7,8 @@ Permet aux journalistes, chercheurs et citoyens de requêter les données politi
 ## Installation
 
 ```bash
-git clone https://github.com/ironlam/transparence-politique-mcp.git
-cd transparence-politique-mcp
+git clone https://github.com/ironlam/poligraph-mcp.git
+cd poligraph-mcp
 npm install
 npm run build
 ```
@@ -22,7 +22,7 @@ Ajoutez dans votre fichier `claude_desktop_config.json` :
   "mcpServers": {
     "poligraph": {
       "command": "node",
-      "args": ["/chemin/absolu/vers/transparence-politique-mcp/build/index.js"]
+      "args": ["/chemin/absolu/vers/poligraph-mcp/build/index.js"]
     }
   }
 }
@@ -42,7 +42,7 @@ Ajoutez dans `.claude/settings.json` :
   "mcpServers": {
     "poligraph": {
       "command": "node",
-      "args": ["/chemin/absolu/vers/transparence-politique-mcp/build/index.js"]
+      "args": ["/chemin/absolu/vers/poligraph-mcp/build/index.js"]
     }
   }
 }
