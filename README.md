@@ -1,10 +1,49 @@
 # Poligraph MCP Server
 
-Serveur [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) qui expose les données de [Poligraph](https://poligraph.fr/) comme tools pour Claude Desktop et Claude Code.
+Serveur [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) qui expose les données de [Poligraph](https://poligraph.fr/) comme tools pour Claude, ChatGPT et tout client MCP compatible.
 
 Permet aux journalistes, chercheurs et citoyens de requêter les données politiques françaises en langage naturel.
 
-## Installation
+## Utilisation rapide
+
+### Serveur distant (aucune installation)
+
+Le serveur est déployé sur Vercel et accessible directement :
+
+```
+https://poligraph-mcp-ld-company.vercel.app/mcp
+```
+
+#### Claude Desktop
+
+Ajoutez dans votre fichier `claude_desktop_config.json` :
+
+```json
+{
+  "mcpServers": {
+    "poligraph": {
+      "type": "streamable-http",
+      "url": "https://poligraph-mcp-ld-company.vercel.app/mcp"
+    }
+  }
+}
+```
+
+#### Claude Code
+
+```bash
+claude mcp add poligraph --transport http https://poligraph-mcp-ld-company.vercel.app/mcp
+```
+
+#### ChatGPT (Actions)
+
+Utilisez l'URL du serveur MCP dans la configuration Actions de votre GPT :
+
+```
+https://poligraph-mcp-ld-company.vercel.app/mcp
+```
+
+### Installation locale (stdio)
 
 ```bash
 git clone https://github.com/ironlam/poligraph-mcp.git
@@ -13,9 +52,7 @@ npm install
 npm run build
 ```
 
-## Configuration Claude Desktop
-
-Ajoutez dans votre fichier `claude_desktop_config.json` :
+Ajoutez dans la configuration de votre client MCP :
 
 ```json
 {
@@ -28,105 +65,110 @@ Ajoutez dans votre fichier `claude_desktop_config.json` :
 }
 ```
 
-**Emplacement du fichier de config :**
+**Emplacement du fichier de config Claude Desktop :**
 - macOS : `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows : `%APPDATA%\Claude\claude_desktop_config.json`
 - Linux : `~/.config/Claude/claude_desktop_config.json`
-
-## Configuration Claude Code
-
-Ajoutez dans `.claude/settings.json` :
-
-```json
-{
-  "mcpServers": {
-    "poligraph": {
-      "command": "node",
-      "args": ["/chemin/absolu/vers/poligraph-mcp/build/index.js"]
-    }
-  }
-}
-```
 
 ## Tools disponibles (18)
 
 ### Politiciens
 
-#### `search_politicians`
-Rechercher des politiciens par nom, parti ou type de mandat.
-
-#### `get_politician`
-Fiche complète d'un politicien : mandats, déclarations de patrimoine, affaires.
-
-#### `get_politician_relations`
-Relations d'un politicien : même parti, gouvernement, législature, département, groupe européen.
+| Tool | Description |
+|------|-------------|
+| `search_politicians` | Rechercher des politiciens par nom, parti ou type de mandat |
+| `get_politician` | Fiche complète : mandats, déclarations de patrimoine, affaires |
+| `get_politician_relations` | Relations : même parti, gouvernement, législature, département |
 
 ### Affaires judiciaires
 
-#### `list_affairs`
-Liste des affaires judiciaires avec filtres (statut, catégorie).
-
-#### `get_politician_affairs`
-Affaires judiciaires d'un politicien avec sources et détails.
+| Tool | Description |
+|------|-------------|
+| `list_affairs` | Liste des affaires judiciaires avec filtres (statut, catégorie) |
+| `get_politician_affairs` | Affaires judiciaires d'un politicien avec sources et détails |
 
 ### Votes parlementaires
 
-#### `list_votes`
-Scrutins parlementaires (Assemblée nationale et Sénat).
-
-#### `get_politician_votes`
-Votes d'un parlementaire avec statistiques de participation.
-
-#### `get_vote_stats`
-Statistiques de vote par parti : cohésion, scrutins divisifs.
+| Tool | Description |
+|------|-------------|
+| `list_votes` | Scrutins parlementaires (Assemblée nationale et Sénat) |
+| `get_politician_votes` | Votes d'un parlementaire avec statistiques de participation |
+| `get_vote_stats` | Statistiques de vote par parti : cohésion, scrutins divisifs |
 
 ### Mandats
 
-#### `list_mandates`
-Liste des mandats politiques avec filtres (type, institution, statut actif/terminé).
+| Tool | Description |
+|------|-------------|
+| `list_mandates` | Liste des mandats politiques (type, institution, statut actif/terminé) |
 
 ### Partis politiques
 
-#### `list_parties`
-Liste des partis politiques avec filtres (position, statut actif/dissous).
-
-#### `get_party`
-Fiche complète d'un parti : membres, filiation, position politique.
+| Tool | Description |
+|------|-------------|
+| `list_parties` | Liste des partis avec filtres (position, statut actif/dissous) |
+| `get_party` | Fiche complète : membres, filiation, position politique |
 
 ### Fact-checks
 
-#### `list_factchecks`
-Fact-checks sur des politiciens français (AFP Factuel, Les Décodeurs, etc.).
+| Tool | Description |
+|------|-------------|
+| `list_factchecks` | Fact-checks (AFP Factuel, Les Décodeurs, etc.) |
+| `get_politician_factchecks` | Fact-checks mentionnant un politicien spécifique |
 
-#### `get_politician_factchecks`
-Fact-checks mentionnant un politicien spécifique.
+### Elections
 
-### Élections
-
-#### `list_elections`
-Élections françaises avec filtres (type, statut, année).
-
-#### `get_election`
-Détail d'une élection : candidatures, résultats, participation.
+| Tool | Description |
+|------|-------------|
+| `list_elections` | Elections françaises avec filtres (type, statut, année) |
+| `get_election` | Détail : candidatures, résultats, participation |
 
 ### Géographie
 
-#### `get_department_stats`
-Statistiques par département : nombre d'élus, parti dominant, répartition.
-
-#### `get_deputies_by_department`
-Députés en exercice dans un département donné.
+| Tool | Description |
+|------|-------------|
+| `get_department_stats` | Statistiques par département : élus, parti dominant, répartition |
+| `get_deputies_by_department` | Députés en exercice dans un département donné |
 
 ### Recherche
 
-#### `search_advanced`
-Recherche avancée avec filtres combinés (département, statut actif, etc.).
+| Tool | Description |
+|------|-------------|
+| `search_advanced` | Recherche avancée avec filtres combinés (département, statut, etc.) |
+
+## Architecture
+
+```
+src/
+├── index.ts          # Point d'entrée CLI (transport stdio)
+├── server.ts         # Factory MCP server & enregistrement des tools
+├── http.ts           # Serveur Express (transport HTTP Streamable)
+├── api.ts            # Client API (https://poligraph.fr)
+├── tools/
+│   ├── politicians.ts
+│   ├── affairs.ts
+│   ├── votes.ts
+│   ├── legislation.ts
+│   ├── factchecks.ts
+│   ├── parties.ts
+│   ├── elections.ts
+│   ├── mandates.ts
+│   └── departments.ts
+└── tests/
+    └── api-contract.test.ts
+api/
+└── mcp.ts            # Handler Vercel (serverless)
+```
+
+**Transports supportés :**
+- **stdio** — Claude Desktop / Claude Code en local
+- **HTTP Streamable** — serveur Express ou Vercel, compatible ChatGPT Actions
 
 ## Développement
 
 ```bash
 npm run dev          # Compilation en mode watch
 npm run build        # Build production
+npm run start:http   # Serveur HTTP local (port 3001)
 npm run inspect      # Tester interactivement avec MCP Inspector
 npm run test:build   # Build + tests de contrat API
 ```
