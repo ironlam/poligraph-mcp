@@ -24,11 +24,19 @@ async function fetchJSON<T>(path: string): Promise<T> {
 // ─── Helpers ───────────────────────────────────────────────────
 
 function assertString(val: unknown, field: string): void {
-  assert.equal(typeof val, "string", `${field} should be a string, got ${typeof val}`);
+  assert.equal(
+    typeof val,
+    "string",
+    `${field} should be a string, got ${typeof val}`,
+  );
 }
 
 function assertNumber(val: unknown, field: string): void {
-  assert.equal(typeof val, "number", `${field} should be a number, got ${typeof val}`);
+  assert.equal(
+    typeof val,
+    "number",
+    `${field} should be a number, got ${typeof val}`,
+  );
 }
 
 function assertStringOrNull(val: unknown, field: string): void {
@@ -49,7 +57,9 @@ function assertPagination(obj: Record<string, unknown>): void {
 
 describe("GET /api/politiques", () => {
   it("returns paginated list with expected fields", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/politiques?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/politiques?limit=2",
+    );
 
     // Pagination
     assert.ok(Array.isArray(data.data), "data should be an array");
@@ -81,7 +91,9 @@ describe("GET /api/politiques", () => {
   });
 
   it("search filter works", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/politiques?search=Macron&limit=5");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/politiques?search=Macron&limit=5",
+    );
     const items = data.data as Record<string, unknown>[];
     assert.ok(items.length > 0, "search for 'Macron' should return results");
     assert.ok(
@@ -93,7 +105,9 @@ describe("GET /api/politiques", () => {
 
 describe("GET /api/politiques/:slug", () => {
   it("returns full politician detail with mandates", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/politiques/emmanuel-macron");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/politiques/emmanuel-macron",
+    );
 
     assertString(data.id, "id");
     assertString(data.slug, "slug");
@@ -112,11 +126,18 @@ describe("GET /api/politiques/:slug", () => {
       assertString(m.type, "mandate.type");
       assertString(m.title, "mandate.title");
       assertString(m.startDate, "mandate.startDate");
-      assert.equal(typeof m.isCurrent, "boolean", "mandate.isCurrent should be boolean");
+      assert.equal(
+        typeof m.isCurrent,
+        "boolean",
+        "mandate.isCurrent should be boolean",
+      );
     }
 
     // Declarations
-    assert.ok(Array.isArray(data.declarations), "declarations should be an array");
+    assert.ok(
+      Array.isArray(data.declarations),
+      "declarations should be an array",
+    );
 
     // Affairs count
     assertNumber(data.affairsCount, "affairsCount");
@@ -190,7 +211,9 @@ describe("GET /api/politiques/:slug/votes", () => {
 
 describe("GET /api/affaires", () => {
   it("returns paginated affairs with politician info", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/affaires?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/affaires?limit=2",
+    );
 
     assert.ok(Array.isArray(data.data), "data should be an array");
     assert.ok(typeof data.pagination === "object" && data.pagination !== null);
@@ -219,7 +242,11 @@ describe("GET /api/affaires", () => {
     );
     const items = data.data as Record<string, unknown>[];
     for (const a of items) {
-      assert.equal(a.category, "CORRUPTION", "all results should be CORRUPTION");
+      assert.equal(
+        a.category,
+        "CORRUPTION",
+        "all results should be CORRUPTION",
+      );
     }
   });
 });
@@ -248,7 +275,9 @@ describe("GET /api/votes", () => {
 
 describe("GET /api/votes/stats", () => {
   it("returns party stats with correct field names", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/votes/stats?chamber=AN&limit=3");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/votes/stats?chamber=AN&limit=3",
+    );
 
     // Parties
     assert.ok(Array.isArray(data.parties), "parties should be an array");
@@ -276,7 +305,10 @@ describe("GET /api/votes/stats", () => {
     assertNumber(g.rejetes, "global.rejetes");
 
     // Divisive scrutins
-    assert.ok(Array.isArray(data.divisiveScrutins), "divisiveScrutins should be an array");
+    assert.ok(
+      Array.isArray(data.divisiveScrutins),
+      "divisiveScrutins should be an array",
+    );
     const divs = data.divisiveScrutins as Record<string, unknown>[];
     if (divs.length > 0) {
       const d = divs[0];
@@ -320,7 +352,9 @@ describe("GET /api/search/advanced", () => {
 
 describe("GET /api/factchecks", () => {
   it("returns paginated fact-checks with politician mentions", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/factchecks?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/factchecks?limit=2",
+    );
 
     assert.ok(Array.isArray(data.data), "data should be an array");
     assert.ok(typeof data.pagination === "object" && data.pagination !== null);
@@ -393,7 +427,9 @@ describe("GET /api/politiques/:slug/factchecks", () => {
 
 describe("GET /api/politiques/:slug (factchecksCount)", () => {
   it("includes factchecksCount field", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/politiques/emmanuel-macron");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/politiques/emmanuel-macron",
+    );
     assertNumber(data.factchecksCount, "factchecksCount");
   });
 });
@@ -402,7 +438,9 @@ describe("GET /api/politiques/:slug (factchecksCount)", () => {
 
 describe("GET /api/partis", () => {
   it("returns paginated list with expected fields", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/partis?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/partis?limit=2",
+    );
 
     assert.ok(Array.isArray(data.data), "data should be an array");
     assert.ok(typeof data.pagination === "object" && data.pagination !== null);
@@ -421,15 +459,22 @@ describe("GET /api/partis", () => {
   });
 
   it("search filter works", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/partis?search=Renaissance&limit=5");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/partis?search=Renaissance&limit=5",
+    );
     const items = data.data as Record<string, unknown>[];
-    assert.ok(items.length > 0, "search for 'Renaissance' should return results");
+    assert.ok(
+      items.length > 0,
+      "search for 'Renaissance' should return results",
+    );
   });
 });
 
 describe("GET /api/partis/:slug", () => {
   it("returns full party detail with members", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/partis/renaissance");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/partis/renaissance",
+    );
 
     assertString(data.id, "id");
     assertString(data.slug, "slug");
@@ -450,7 +495,10 @@ describe("GET /api/partis/:slug", () => {
     }
 
     // External IDs
-    assert.ok(Array.isArray(data.externalIds), "externalIds should be an array");
+    assert.ok(
+      Array.isArray(data.externalIds),
+      "externalIds should be an array",
+    );
   });
 });
 
@@ -458,7 +506,9 @@ describe("GET /api/partis/:slug", () => {
 
 describe("GET /api/elections", () => {
   it("returns paginated list with expected fields", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/elections?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/elections?limit=2",
+    );
 
     assert.ok(Array.isArray(data.data), "data should be an array");
     assert.ok(typeof data.pagination === "object" && data.pagination !== null);
@@ -481,7 +531,9 @@ describe("GET /api/elections", () => {
 
 describe("GET /api/mandats", () => {
   it("returns paginated list with expected fields", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/mandats?limit=2");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/mandats?limit=2",
+    );
 
     assert.ok(Array.isArray(data.data), "data should be an array");
     assert.ok(typeof data.pagination === "object" && data.pagination !== null);
@@ -506,7 +558,9 @@ describe("GET /api/mandats", () => {
   });
 
   it("type filter works", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/mandats?type=DEPUTE&isCurrent=true&limit=3");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/mandats?type=DEPUTE&isCurrent=true&limit=3",
+    );
     const items = data.data as Record<string, unknown>[];
     for (const m of items) {
       assert.equal(m.type, "DEPUTE", "all results should be DEPUTE");
@@ -518,7 +572,7 @@ describe("GET /api/mandats", () => {
 // ─── Relations ───────────────────────────────────────────────
 
 describe("GET /api/politiques/:slug/relations", () => {
-  it("returns relation graph with expected structure", async () => {
+  it("returns relation clusters with expected structure", async () => {
     const data = await fetchJSON<Record<string, unknown>>(
       "/api/politiques/emmanuel-macron/relations?limit=5",
     );
@@ -530,17 +584,16 @@ describe("GET /api/politiques/:slug/relations", () => {
     assertString(center.slug, "center.slug");
     assertString(center.fullName, "center.fullName");
 
-    // Nodes
-    assert.ok(Array.isArray(data.nodes), "nodes should be an array");
-
-    // Links
-    assert.ok(Array.isArray(data.links), "links should be an array");
-    const links = data.links as Record<string, unknown>[];
-    if (links.length > 0) {
-      assertString(links[0].source, "link.source");
-      assertString(links[0].target, "link.target");
-      assertString(links[0].type, "link.type");
-      assertNumber(links[0].strength, "link.strength");
+    // Clusters (le graphe nodes/links a été remplacé par des clusters typés)
+    assert.ok(Array.isArray(data.clusters), "clusters should be an array");
+    if ((data.clusters as unknown[]).length > 0) {
+      const cluster = (data.clusters as Array<Record<string, unknown>>)[0]!;
+      assertString(cluster.type, "cluster.type");
+      assertString(cluster.label, "cluster.label");
+      assert.ok(
+        Array.isArray(cluster.nodes),
+        "cluster.nodes should be an array",
+      );
     }
 
     // Stats
@@ -554,9 +607,14 @@ describe("GET /api/politiques/:slug/relations", () => {
 
 describe("GET /api/stats/departments", () => {
   it("returns department stats with expected structure", async () => {
-    const data = await fetchJSON<Record<string, unknown>>("/api/stats/departments");
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/stats/departments",
+    );
 
-    assert.ok(Array.isArray(data.departments), "departments should be an array");
+    assert.ok(
+      Array.isArray(data.departments),
+      "departments should be an array",
+    );
     assert.ok(typeof data.stats === "object" && data.stats !== null);
 
     const stats = data.stats as Record<string, unknown>;
@@ -579,7 +637,9 @@ describe("GET /api/stats/departments", () => {
 
 describe("GET /api/deputies/by-department", () => {
   it("returns deputies for Paris", async () => {
-    const data = await fetchJSON<Record<string, unknown>[]>("/api/deputies/by-department?department=Paris");
+    const data = await fetchJSON<Record<string, unknown>[]>(
+      "/api/deputies/by-department?department=Paris",
+    );
 
     assert.ok(Array.isArray(data), "response should be an array");
     assert.ok(data.length > 0, "Paris should have deputies");
@@ -594,12 +654,16 @@ describe("GET /api/deputies/by-department", () => {
 describe("GET /api/elections/:slug", () => {
   it("returns election detail with candidacies and rounds", async () => {
     // First get an election slug from the list
-    const list = await fetchJSON<Record<string, unknown>>("/api/elections?limit=1");
+    const list = await fetchJSON<Record<string, unknown>>(
+      "/api/elections?limit=1",
+    );
     const items = list.data as Record<string, unknown>[];
     if (items.length === 0) return; // No elections in DB yet, skip
 
     const slug = items[0].slug as string;
-    const data = await fetchJSON<Record<string, unknown>>(`/api/elections/${slug}`);
+    const data = await fetchJSON<Record<string, unknown>>(
+      `/api/elections/${slug}`,
+    );
 
     assertString(data.id, "id");
     assertString(data.slug, "slug");
@@ -608,9 +672,61 @@ describe("GET /api/elections/:slug", () => {
     assertString(data.status, "status");
 
     // Candidacies
-    assert.ok(Array.isArray(data.candidacies), "candidacies should be an array");
+    assert.ok(
+      Array.isArray(data.candidacies),
+      "candidacies should be an array",
+    );
 
     // Rounds
     assert.ok(Array.isArray(data.rounds), "rounds should be an array");
+  });
+});
+
+// ─── Contrat RGPD art. 10 ────────────────────────────────────
+
+describe("Contrat RGPD art. 10 — affaires publiées uniquement", () => {
+  it("GET /api/affaires n'expose jamais publicationStatus", async () => {
+    const data = await fetchJSON<{ data: Array<Record<string, unknown>> }>(
+      "/api/affaires?limit=100",
+    );
+    assert.ok(Array.isArray(data.data));
+    assert.ok(data.data.length > 0);
+    for (const affair of data.data) {
+      // La frontière de publication est invisible côté public : le champ n'existe pas
+      assert.ok(
+        !("publicationStatus" in affair),
+        "publicationStatus ne doit pas être exposé",
+      );
+      assert.ok(typeof affair.title === "string");
+      assert.ok(typeof affair.status === "string");
+    }
+  });
+
+  it("GET /api/politiques/:slug/affaires n'expose pas publicationStatus", async () => {
+    const data = await fetchJSON<{ affairs: Array<Record<string, unknown>> }>(
+      "/api/politiques/nicolas-sarkozy/affaires",
+    );
+    for (const affair of data.affairs) {
+      assert.ok(
+        !("publicationStatus" in affair),
+        "publicationStatus ne doit pas être exposé",
+      );
+    }
+  });
+
+  it("affairsCount = affaires publiées toutes implications confondues", async () => {
+    const detail = await fetchJSON<{ affairsCount: number }>(
+      "/api/politiques/nicolas-sarkozy",
+    );
+    const all = await fetchJSON<{ total: number }>(
+      "/api/politiques/nicolas-sarkozy/affaires?involvement=DIRECT,INDIRECT,MENTIONED_ONLY,VICTIM,PLAINTIFF",
+    );
+    const directOnly = await fetchJSON<{ total: number }>(
+      "/api/politiques/nicolas-sarkozy/affaires",
+    );
+    // affairsCount compte toutes les implications publiées ; la liste par
+    // défaut ne montre que les mises en cause directes.
+    assert.equal(detail.affairsCount, all.total);
+    assert.ok(directOnly.total <= all.total);
   });
 });

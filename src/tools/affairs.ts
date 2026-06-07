@@ -134,7 +134,10 @@ function needsPresumption(status: string): boolean {
   ].includes(status);
 }
 
-function formatAffairDetail(affair: AffairListItem | PoliticianAffairsResponse["affairs"][0], politicianName?: string): string {
+function formatAffairDetail(
+  affair: AffairListItem | PoliticianAffairsResponse["affairs"][0],
+  politicianName?: string,
+): string {
   const lines: string[] = [];
 
   lines.push(`### ${affair.title}`);
@@ -144,14 +147,19 @@ function formatAffairDetail(affair: AffairListItem | PoliticianAffairsResponse["
   lines.push(`**Statut** : ${formatStatus(affair.status)}`);
   lines.push(`**Catégorie** : ${formatCategory(affair.category)}`);
 
-  if (affair.factsDate) lines.push(`**Date des faits** : ${formatDate(affair.factsDate)}`);
-  if (affair.startDate) lines.push(`**Début de procédure** : ${formatDate(affair.startDate)}`);
-  if (affair.verdictDate) lines.push(`**Verdict** : ${formatDate(affair.verdictDate)}`);
+  if (affair.factsDate)
+    lines.push(`**Date des faits** : ${formatDate(affair.factsDate)}`);
+  if (affair.startDate)
+    lines.push(`**Début de procédure** : ${formatDate(affair.startDate)}`);
+  if (affair.verdictDate)
+    lines.push(`**Verdict** : ${formatDate(affair.verdictDate)}`);
   if (affair.sentence) lines.push(`**Peine** : ${affair.sentence}`);
   if (affair.appeal) lines.push(`**Appel** : ${affair.appeal}`);
 
   if (affair.partyAtTime) {
-    lines.push(`**Parti au moment des faits** : ${affair.partyAtTime.name} (${affair.partyAtTime.shortName})`);
+    lines.push(
+      `**Parti au moment des faits** : ${affair.partyAtTime.name} (${affair.partyAtTime.shortName})`,
+    );
   }
 
   lines.push("");
@@ -178,7 +186,8 @@ export function registerAffairTools(server: McpServer): void {
   server.registerTool(
     "list_affairs",
     {
-      description: "Lister les affaires judiciaires impliquant des politiciens français, avec filtres par statut et catégorie.",
+      description:
+        "Lister les affaires judiciaires impliquant des politiciens français, avec filtres par statut et catégorie. Seules les affaires publiées après validation éditoriale humaine sont retournées ; les brouillons et affaires retirées ne sont jamais exposés.",
       inputSchema: {
         status: z
           .enum([
@@ -208,9 +217,19 @@ export function registerAffairTools(server: McpServer): void {
           .optional()
           .describe("Filtrer par catégorie d'infraction"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
-        limit: z.number().int().min(1).max(100).default(20).describe("Résultats par page (max 100)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Résultats par page (max 100)"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche d'affaires judiciaires...",
         "openai/toolInvocation/invoked": "Affaires trouvées",
@@ -225,14 +244,18 @@ export function registerAffairTools(server: McpServer): void {
       });
 
       const lines: string[] = [];
-      lines.push(`**${data.pagination.total} affaires** (page ${data.pagination.page}/${data.pagination.totalPages})`);
+      lines.push(
+        `**${data.pagination.total} affaires** (page ${data.pagination.page}/${data.pagination.totalPages})`,
+      );
       lines.push("");
 
       for (const affair of data.data) {
         const party = affair.politician.currentParty
           ? ` (${affair.politician.currentParty.shortName})`
           : "";
-        lines.push(formatAffairDetail(affair, `${affair.politician.fullName}${party}`));
+        lines.push(
+          formatAffairDetail(affair, `${affair.politician.fullName}${party}`),
+        );
         lines.push("");
         lines.push("---");
         lines.push("");
@@ -253,12 +276,19 @@ export function registerAffairTools(server: McpServer): void {
             title: a.title,
             status: a.status,
             category: a.category,
-            politician: { slug: a.politician.slug, fullName: a.politician.fullName },
+            politician: {
+              slug: a.politician.slug,
+              fullName: a.politician.fullName,
+            },
             factsDate: a.factsDate,
             startDate: a.startDate,
             verdictDate: a.verdictDate,
             sentence: a.sentence,
-            sources: a.sources.map((s) => ({ url: s.url, title: s.title, publisher: s.publisher })),
+            sources: a.sources.map((s) => ({
+              url: s.url,
+              title: s.title,
+              publisher: s.publisher,
+            })),
           })),
         },
       };
@@ -268,11 +298,18 @@ export function registerAffairTools(server: McpServer): void {
   server.registerTool(
     "get_politician_affairs",
     {
-      description: "Obtenir les affaires judiciaires d'un politicien spécifique, avec sources et détails.",
+      description:
+        "Obtenir les affaires judiciaires d'un politicien spécifique, avec sources et détails. Seules les affaires publiées après validation éditoriale humaine sont retournées.",
       inputSchema: {
-        slug: z.string().describe("Identifiant du politicien (ex: 'nicolas-sarkozy')"),
+        slug: z
+          .string()
+          .describe("Identifiant du politicien (ex: 'nicolas-sarkozy')"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des affaires...",
         "openai/toolInvocation/invoked": "Affaires chargées",
@@ -287,7 +324,9 @@ export function registerAffairTools(server: McpServer): void {
       const party = data.politician.party
         ? ` (${data.politician.party.name})`
         : "";
-      lines.push(`# Affaires judiciaires — ${data.politician.fullName}${party}`);
+      lines.push(
+        `# Affaires judiciaires — ${data.politician.fullName}${party}`,
+      );
       lines.push(`**${data.total} affaire(s)**`);
       lines.push("");
 
@@ -311,7 +350,12 @@ export function registerAffairTools(server: McpServer): void {
           politician: {
             slug: data.politician.slug,
             fullName: data.politician.fullName,
-            party: data.politician.party ? { name: data.politician.party.name, shortName: data.politician.party.shortName } : null,
+            party: data.politician.party
+              ? {
+                  name: data.politician.party.name,
+                  shortName: data.politician.party.shortName,
+                }
+              : null,
           },
           total: data.total,
           affairs: data.affairs.map((a) => ({
@@ -323,7 +367,11 @@ export function registerAffairTools(server: McpServer): void {
             startDate: a.startDate,
             verdictDate: a.verdictDate,
             sentence: a.sentence,
-            sources: a.sources.map((s) => ({ url: s.url, title: s.title, publisher: s.publisher })),
+            sources: a.sources.map((s) => ({
+              url: s.url,
+              title: s.title,
+              publisher: s.publisher,
+            })),
           })),
           url: `https://poligraph.fr/politiques/${data.politician.slug}`,
         },
