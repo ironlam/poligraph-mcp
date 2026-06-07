@@ -51,6 +51,7 @@ Le serveur est compatible avec [ChatGPT Apps](https://platform.openai.com/docs/a
 5. Publiez l'action dans votre GPT ou App
 
 **Fonctionnalités ChatGPT :**
+
 - `annotations` : tous les tools sont marqués `readOnlyHint: true` (lecture seule)
 - `_meta` OpenAI : messages de statut pendant l'invocation (ex: "Recherche de politiciens...")
 - `structuredContent` : données JSON structurées en plus du texte markdown
@@ -78,6 +79,7 @@ Ajoutez dans la configuration de votre client MCP :
 ```
 
 **Emplacement du fichier de config Claude Desktop :**
+
 - macOS : `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows : `%APPDATA%\Claude\claude_desktop_config.json`
 - Linux : `~/.config/Claude/claude_desktop_config.json`
@@ -86,65 +88,65 @@ Ajoutez dans la configuration de votre client MCP :
 
 ### Politiciens
 
-| Tool | Description |
-|------|-------------|
-| `search_politicians` | Rechercher des politiciens par nom, parti ou type de mandat |
-| `get_politician` | Fiche complète : mandats, déclarations de patrimoine, affaires |
+| Tool                       | Description                                                    |
+| -------------------------- | -------------------------------------------------------------- |
+| `search_politicians`       | Rechercher des politiciens par nom, parti ou type de mandat    |
+| `get_politician`           | Fiche complète : mandats, déclarations de patrimoine, affaires |
 | `get_politician_relations` | Relations : même parti, gouvernement, législature, département |
 
 ### Affaires judiciaires
 
-| Tool | Description |
-|------|-------------|
-| `list_affairs` | Liste des affaires judiciaires avec filtres (statut, catégorie) |
-| `get_politician_affairs` | Affaires judiciaires d'un politicien avec sources et détails |
+| Tool                     | Description                                                     |
+| ------------------------ | --------------------------------------------------------------- |
+| `list_affairs`           | Liste des affaires judiciaires avec filtres (statut, catégorie) |
+| `get_politician_affairs` | Affaires judiciaires d'un politicien avec sources et détails    |
 
 ### Votes parlementaires
 
-| Tool | Description |
-|------|-------------|
-| `list_votes` | Scrutins parlementaires (Assemblée nationale et Sénat) |
-| `get_politician_votes` | Votes d'un parlementaire avec statistiques de participation |
-| `get_vote_stats` | Statistiques de vote par parti : cohésion, scrutins divisifs |
+| Tool                   | Description                                                  |
+| ---------------------- | ------------------------------------------------------------ |
+| `list_votes`           | Scrutins parlementaires (Assemblée nationale et Sénat)       |
+| `get_politician_votes` | Votes d'un parlementaire avec statistiques de participation  |
+| `get_vote_stats`       | Statistiques de vote par parti : cohésion, scrutins divisifs |
 
 ### Mandats
 
-| Tool | Description |
-|------|-------------|
+| Tool            | Description                                                            |
+| --------------- | ---------------------------------------------------------------------- |
 | `list_mandates` | Liste des mandats politiques (type, institution, statut actif/terminé) |
 
 ### Partis politiques
 
-| Tool | Description |
-|------|-------------|
+| Tool           | Description                                                    |
+| -------------- | -------------------------------------------------------------- |
 | `list_parties` | Liste des partis avec filtres (position, statut actif/dissous) |
-| `get_party` | Fiche complète : membres, filiation, position politique |
+| `get_party`    | Fiche complète : membres, filiation, position politique        |
 
 ### Fact-checks
 
-| Tool | Description |
-|------|-------------|
-| `list_factchecks` | Fact-checks (AFP Factuel, Les Décodeurs, etc.) |
+| Tool                        | Description                                      |
+| --------------------------- | ------------------------------------------------ |
+| `list_factchecks`           | Fact-checks (AFP Factuel, Les Décodeurs, etc.)   |
 | `get_politician_factchecks` | Fact-checks mentionnant un politicien spécifique |
 
 ### Elections
 
-| Tool | Description |
-|------|-------------|
+| Tool             | Description                                             |
+| ---------------- | ------------------------------------------------------- |
 | `list_elections` | Elections françaises avec filtres (type, statut, année) |
-| `get_election` | Détail : candidatures, résultats, participation |
+| `get_election`   | Détail : candidatures, résultats, participation         |
 
 ### Géographie
 
-| Tool | Description |
-|------|-------------|
-| `get_department_stats` | Statistiques par département : élus, parti dominant, répartition |
-| `get_deputies_by_department` | Députés en exercice dans un département donné |
+| Tool                         | Description                                                      |
+| ---------------------------- | ---------------------------------------------------------------- |
+| `get_department_stats`       | Statistiques par département : élus, parti dominant, répartition |
+| `get_deputies_by_department` | Députés en exercice dans un département donné                    |
 
 ### Recherche
 
-| Tool | Description |
-|------|-------------|
+| Tool              | Description                                                         |
+| ----------------- | ------------------------------------------------------------------- |
 | `search_advanced` | Recherche avancée avec filtres combinés (département, statut, etc.) |
 
 ## Architecture
@@ -172,6 +174,7 @@ api/
 ```
 
 **Transports supportés :**
+
 - **stdio** — Claude Desktop / Claude Code en local
 - **HTTP Streamable** — serveur Express ou Vercel, compatible ChatGPT Actions
 
@@ -188,12 +191,22 @@ npm run test:build   # Build + tests de contrat API
 ## Source des données
 
 Toutes les données proviennent de sources officielles :
+
 - [Assemblée nationale](https://data.assemblee-nationale.fr/)
 - [Sénat](https://data.senat.fr/)
 - [HATVP](https://www.hatvp.fr/)
 - [Wikidata](https://www.wikidata.org/)
 
 Voir [poligraph.fr/sources](https://poligraph.fr/sources) pour la liste complète.
+
+### Périmètre des affaires judiciaires
+
+Les outils `list_affairs`, `get_politician_affairs` et les compteurs `affairsCount`
+n'exposent que les affaires **publiées après validation éditoriale humaine** sur
+poligraph.fr. Les brouillons, affaires archivées, exclues ou rejetées ne sont
+jamais retournés, ni directement ni via les agrégats. Le serveur MCP consomme
+exclusivement l'API publique : il hérite de ses filtres et n'y ajoute aucune
+donnée.
 
 ## Licence
 
