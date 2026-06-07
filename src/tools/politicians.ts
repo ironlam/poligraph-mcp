@@ -53,6 +53,10 @@ interface PoliticianDetail extends PoliticianListItem {
   mandates: Mandate[];
   declarations: Declaration[];
   affairsCount: number;
+  adverseAffairsCount?: number;
+  affairsMentionedCount?: number;
+  affairsVictimOrPlaintiffCount?: number;
+  favorableOutcomeCount?: number;
   factchecksCount?: number;
 }
 
@@ -137,6 +141,23 @@ function formatPoliticianDetail(p: PoliticianDetail): string {
   if (p.affairsCount > 0) {
     lines.push("");
     lines.push(`## Affaires judiciaires : ${p.affairsCount}`);
+    lines.push(
+      "_Total des affaires publiées impliquant la personne, tous rôles confondus._",
+    );
+    const details: string[] = [];
+    if (p.adverseAffairsCount !== undefined)
+      details.push(
+        `mis en cause (procédures validées) : ${p.adverseAffairsCount}`,
+      );
+    if (p.favorableOutcomeCount !== undefined)
+      details.push(
+        `issues favorables (relaxe, non-lieu, etc.) : ${p.favorableOutcomeCount}`,
+      );
+    if (p.affairsMentionedCount !== undefined)
+      details.push(`simplement mentionné : ${p.affairsMentionedCount}`);
+    if (p.affairsVictimOrPlaintiffCount !== undefined)
+      details.push(`victime ou plaignant : ${p.affairsVictimOrPlaintiffCount}`);
+    if (details.length > 0) lines.push(details.map((d) => `- ${d}`).join("\n"));
     lines.push(
       `Utilisez l'outil get_politician_affairs avec le slug "${p.slug}" pour les détails.`,
     );
@@ -392,7 +413,7 @@ export function registerPoliticianTools(server: McpServer): void {
     "get_politician",
     {
       description:
-        "Obtenir la fiche complète d'un politicien : mandats, déclarations de patrimoine, nombre d'affaires publiées (toutes implications confondues : mis en cause, mentionné, victime ou plaignant).",
+        "Obtenir la fiche complète d'un politicien : mandats, déclarations de patrimoine, nombre d'affaires publiées (`affairsCount`, tous rôles confondus) et compteurs par rôle (mis en cause, mentionné, victime/plaignant, issue favorable).",
       inputSchema: {
         slug: z
           .string()
@@ -447,6 +468,10 @@ export function registerPoliticianTools(server: McpServer): void {
             url: d.url,
           })),
           affairsCount: data.affairsCount,
+          adverseAffairsCount: data.adverseAffairsCount,
+          affairsMentionedCount: data.affairsMentionedCount,
+          affairsVictimOrPlaintiffCount: data.affairsVictimOrPlaintiffCount,
+          favorableOutcomeCount: data.favorableOutcomeCount,
           factchecksCount: data.factchecksCount ?? 0,
           url: `https://poligraph.fr/politiques/${data.slug}`,
         },
