@@ -572,7 +572,7 @@ describe("GET /api/mandats", () => {
 // ─── Relations ───────────────────────────────────────────────
 
 describe("GET /api/politiques/:slug/relations", () => {
-  it("returns relation graph with expected structure", async () => {
+  it("returns relation clusters with expected structure", async () => {
     const data = await fetchJSON<Record<string, unknown>>(
       "/api/politiques/emmanuel-macron/relations?limit=5",
     );
@@ -584,17 +584,16 @@ describe("GET /api/politiques/:slug/relations", () => {
     assertString(center.slug, "center.slug");
     assertString(center.fullName, "center.fullName");
 
-    // Nodes
-    assert.ok(Array.isArray(data.nodes), "nodes should be an array");
-
-    // Links
-    assert.ok(Array.isArray(data.links), "links should be an array");
-    const links = data.links as Record<string, unknown>[];
-    if (links.length > 0) {
-      assertString(links[0].source, "link.source");
-      assertString(links[0].target, "link.target");
-      assertString(links[0].type, "link.type");
-      assertNumber(links[0].strength, "link.strength");
+    // Clusters (le graphe nodes/links a été remplacé par des clusters typés)
+    assert.ok(Array.isArray(data.clusters), "clusters should be an array");
+    if ((data.clusters as unknown[]).length > 0) {
+      const cluster = (data.clusters as Array<Record<string, unknown>>)[0]!;
+      assertString(cluster.type, "cluster.type");
+      assertString(cluster.label, "cluster.label");
+      assert.ok(
+        Array.isArray(cluster.nodes),
+        "cluster.nodes should be an array",
+      );
     }
 
     // Stats
