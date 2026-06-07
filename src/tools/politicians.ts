@@ -392,7 +392,7 @@ export function registerPoliticianTools(server: McpServer): void {
     "get_politician",
     {
       description:
-        "Obtenir la fiche complète d'un politicien : mandats, déclarations de patrimoine, nombre d'affaires.",
+        "Obtenir la fiche complète d'un politicien : mandats, déclarations de patrimoine, nombre d'affaires publiées (toutes implications confondues : mis en cause, mentionné, victime ou plaignant).",
       inputSchema: {
         slug: z
           .string()
