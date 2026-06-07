@@ -715,21 +715,19 @@ describe("Contrat RGPD art. 10 — affaires publiées uniquement", () => {
     }
   });
 
-  it("affairsCount de la fiche politicien est supérieur ou égal aux affaires publiées listées", async () => {
-    // Observation 2026-06-07 : affairsCount=10, affairs.total=7 pour nicolas-sarkozy.
-    // Le compteur affairsCount est calculé avant certains filtres éditoriaux appliqués
-    // à la liste (ex. exclusion de catégories sensibles côté API). Les deux valeurs
-    // portent sur des affaires publiées, mais le périmètre exact peut différer.
-    // Contrat minimal : affairsCount >= total (jamais de liste plus longue que le compteur).
+  it("affairsCount = affaires publiées toutes implications confondues", async () => {
     const detail = await fetchJSON<{ affairsCount: number }>(
       "/api/politiques/nicolas-sarkozy",
     );
-    const affairs = await fetchJSON<{ total: number }>(
+    const all = await fetchJSON<{ total: number }>(
+      "/api/politiques/nicolas-sarkozy/affaires?involvement=DIRECT,INDIRECT,MENTIONED_ONLY,VICTIM,PLAINTIFF",
+    );
+    const directOnly = await fetchJSON<{ total: number }>(
       "/api/politiques/nicolas-sarkozy/affaires",
     );
-    assert.ok(
-      detail.affairsCount >= affairs.total,
-      `affairsCount (${detail.affairsCount}) devrait être >= total (${affairs.total})`,
-    );
+    // affairsCount compte toutes les implications publiées ; la liste par
+    // défaut ne montre que les mises en cause directes.
+    assert.equal(detail.affairsCount, all.total);
+    assert.ok(directOnly.total <= all.total);
   });
 });

@@ -208,6 +208,8 @@ jamais retournés, ni directement ni via les agrégats. Le serveur MCP consomme
 exclusivement l'API publique : il hérite de ses filtres et n'y ajoute aucune
 donnée.
 
+Le compteur `affairsCount` recense toutes les implications publiées (mis en cause, mentionné, victime, plaignant) ; la liste `get_politician_affairs` filtre par défaut sur les mises en cause directes (`involvement=DIRECT`).
+
 ## Licence
 
 MIT
