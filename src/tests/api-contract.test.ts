@@ -730,3 +730,32 @@ describe("Contrat RGPD art. 10 — affaires publiées uniquement", () => {
     assert.ok(directOnly.total <= all.total);
   });
 });
+
+// ─── Compteurs d'affaires par rôle (Phase 3b) ────────────────
+
+describe("Compteurs d'affaires par rôle (Phase 3b)", () => {
+  it("la fiche politicien expose les compteurs additifs cohérents", async () => {
+    const d = await fetchJSON<{
+      affairsCount: number;
+      adverseAffairsCount: number;
+      affairsMentionedCount: number;
+      affairsVictimOrPlaintiffCount: number;
+      favorableOutcomeCount: number;
+    }>("/api/politiques/nicolas-sarkozy");
+
+    for (const k of [
+      "affairsCount",
+      "adverseAffairsCount",
+      "affairsMentionedCount",
+      "affairsVictimOrPlaintiffCount",
+      "favorableOutcomeCount",
+    ] as const) {
+      assert.equal(typeof d[k], "number", `${k} doit être un nombre`);
+      assert.ok(d[k] >= 0);
+    }
+    assert.ok(d.adverseAffairsCount <= d.affairsCount);
+    assert.ok(d.affairsMentionedCount <= d.affairsCount);
+    assert.ok(d.affairsVictimOrPlaintiffCount <= d.affairsCount);
+    assert.ok(d.favorableOutcomeCount <= d.affairsCount);
+  });
+});

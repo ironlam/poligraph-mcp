@@ -210,6 +210,13 @@ donnée.
 
 Le compteur `affairsCount` recense toutes les implications publiées (mis en cause, mentionné, victime, plaignant) ; la liste `get_politician_affairs` filtre par défaut sur les mises en cause directes (`involvement=DIRECT`).
 
+Outre `affairsCount` (legacy, tous rôles confondus), la fiche politicien expose
+des compteurs par rôle : `adverseAffairsCount` (mis en cause, procédures
+validées par un juge), `affairsMentionedCount` (simple mention),
+`affairsVictimOrPlaintiffCount` (victime ou plaignant) et `favorableOutcomeCount`
+(issues closes sans condamnation : relaxe, acquittement, non-lieu, classement,
+prescription).
+
 ## Licence
 
 MIT
