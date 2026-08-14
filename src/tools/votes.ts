@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
+import { participationLine } from "../editorial.js";
 
 interface ScrutinListItem {
   id: string;
@@ -30,21 +31,22 @@ interface PartyStats {
   partyId: string;
   partyName: string;
   partyShortName: string;
-  partyColor: string;
-  partySlug: string;
+  partyColor: string | null;
+  partySlug: string | null;
   totalVotes: number;
   pour: number;
   contre: number;
   abstention: number;
   nonVotant: number;
-  absent: number;
+  absentVoteRows?: number;
   cohesionRate: number;
-  participationRate: number;
+  participationRate: number | null;
+  participationStatus?: string;
 }
 
 interface DivisiveScrutin {
   id: string;
-  slug: string;
+  slug: string | null;
   title: string;
   votingDate: string;
   chamber: string;
@@ -63,7 +65,8 @@ interface VoteStatsResponse {
     totalVotesFor: number;
     totalVotesAgainst: number;
     totalVotesAbstain: number;
-    participationRate: number;
+    participationRate: number | null;
+    participationStatus?: string;
     adoptes: number;
     rejetes: number;
   };
@@ -89,8 +92,10 @@ interface PoliticianVotesResponse {
     contre: number;
     abstention: number;
     nonVotant: number;
-    absent: number;
-    participationRate: number;
+    eligibleScrutins?: number | null;
+    scrutinsSansVoteEnregistre?: number | null;
+    participationRate: number | null;
+    participationStatus?: string;
   };
   votes: Array<{
     id: string;
@@ -117,33 +122,64 @@ interface PoliticianVotesResponse {
 }
 
 function formatResult(result: string): string {
-  return result === "ADOPTED" ? "Adopté" : "Rejeté";
+  switch (result) {
+    case "ADOPTED":
+      return "Adopté";
+    case "REJECTED":
+      return "Rejeté";
+    default:
+      return "Résultat non disponible";
+  }
 }
 
 function formatPosition(position: string): string {
-  const labels: Record<string, string> = {
-    POUR: "Pour",
-    CONTRE: "Contre",
-    ABSTENTION: "Abstention",
-    NON_VOTANT: "Non votant",
-    ABSENT: "Absent",
-  };
-  return labels[position] || position;
+  switch (position) {
+    case "POUR":
+      return "Pour";
+    case "CONTRE":
+      return "Contre";
+    case "ABSTENTION":
+      return "Abstention";
+    case "NON_VOTANT":
+      return "Non-votant";
+    case "ABSENT":
+      return "Absent";
+    default:
+      return "Position non disponible";
+  }
 }
 
 export function registerVoteTools(server: McpServer): void {
   server.registerTool(
     "list_votes",
     {
-      description: "Lister les scrutins parlementaires (Assemblée nationale et Sénat) avec filtres.",
+      description:
+        "Lister les scrutins parlementaires (Assemblée nationale et Sénat) avec filtres. Un résultat inconnu reste inconnu et n'est jamais assimilé à un rejet.",
       inputSchema: {
         search: z.string().optional().describe("Recherche dans le titre du scrutin"),
-        result: z.enum(["ADOPTED", "REJECTED"]).optional().describe("Filtrer par résultat : ADOPTED ou REJECTED"),
-        legislature: z.number().int().optional().describe("Filtrer par législature (ex: 16, 17)"),
+        result: z
+          .enum(["ADOPTED", "REJECTED"])
+          .optional()
+          .describe("Filtrer par résultat : ADOPTED ou REJECTED"),
+        legislature: z
+          .number()
+          .int()
+          .optional()
+          .describe("Filtrer par législature lorsque ce champ est applicable"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
-        limit: z.number().int().min(1).max(100).default(20).describe("Résultats par page (max 100)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Résultats par page (max 100)"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de scrutins...",
         "openai/toolInvocation/invoked": "Scrutins trouvés",
@@ -159,13 +195,16 @@ export function registerVoteTools(server: McpServer): void {
       });
 
       const lines: string[] = [];
-      lines.push(`**${data.pagination.total} scrutins** (page ${data.pagination.page}/${data.pagination.totalPages})`);
+      lines.push(
+        `**${data.pagination.total} scrutins** (page ${data.pagination.page}/${data.pagination.totalPages})`,
+      );
       lines.push("");
 
-      for (const s of data.data) {
-        const resultLabel = formatResult(s.result);
-        lines.push(`- **${s.title}** (${formatDate(s.votingDate)})`);
-        lines.push(`  ${resultLabel} — Pour: ${s.votesFor}, Contre: ${s.votesAgainst}, Abstention: ${s.votesAbstain}`);
+      for (const scrutin of data.data) {
+        lines.push(`- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`);
+        lines.push(
+          `  ${formatResult(scrutin.result)} — Pour: ${scrutin.votesFor}, Contre: ${scrutin.votesAgainst}, Abstention: ${scrutin.votesAbstain}`,
+        );
       }
 
       if (data.pagination.page < data.pagination.totalPages) {
@@ -179,15 +218,15 @@ export function registerVoteTools(server: McpServer): void {
           total: data.pagination.total,
           page: data.pagination.page,
           totalPages: data.pagination.totalPages,
-          items: data.data.map((s) => ({
-            title: s.title,
-            votingDate: s.votingDate,
-            legislature: s.legislature,
-            result: s.result,
-            votesFor: s.votesFor,
-            votesAgainst: s.votesAgainst,
-            votesAbstain: s.votesAbstain,
-            sourceUrl: s.sourceUrl,
+          items: data.data.map((scrutin) => ({
+            title: scrutin.title,
+            votingDate: scrutin.votingDate,
+            legislature: scrutin.legislature,
+            result: scrutin.result,
+            votesFor: scrutin.votesFor,
+            votesAgainst: scrutin.votesAgainst,
+            votesAbstain: scrutin.votesAbstain,
+            sourceUrl: scrutin.sourceUrl,
           })),
         },
       };
@@ -197,13 +236,26 @@ export function registerVoteTools(server: McpServer): void {
   server.registerTool(
     "get_politician_votes",
     {
-      description: "Obtenir les votes d'un politicien spécifique avec ses statistiques de participation.",
+      description:
+        "Obtenir les votes enregistrés d'un politicien et les statistiques publiables. Un taux absent ou non publiable n'est jamais converti en 0 %.",
       inputSchema: {
-        slug: z.string().describe("Identifiant du politicien (ex: 'jean-luc-melenchon')"),
+        slug: z
+          .string()
+          .describe("Identifiant du politicien (ex: 'jean-luc-melenchon')"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
-        limit: z.number().int().min(1).max(100).default(20).describe("Résultats par page (max 100)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Résultats par page (max 100)"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des votes...",
         "openai/toolInvocation/invoked": "Votes chargés",
@@ -216,25 +268,37 @@ export function registerVoteTools(server: McpServer): void {
       );
 
       const lines: string[] = [];
-      const party = data.politician.party ? ` (${data.politician.party.name})` : "";
+      const party = data.politician.party
+        ? ` (${data.politician.party.name})`
+        : "";
       lines.push(`# Votes — ${data.politician.fullName}${party}`);
       lines.push("");
 
-      const s = data.stats;
-      lines.push("## Statistiques");
-      lines.push(`- **Total** : ${s.total} votes`);
-      lines.push(`- **Pour** : ${s.pour} (${s.total ? Math.round((s.pour / s.total) * 100) : 0}%)`);
-      lines.push(`- **Contre** : ${s.contre} (${s.total ? Math.round((s.contre / s.total) * 100) : 0}%)`);
-      lines.push(`- **Abstention** : ${s.abstention}`);
-      lines.push(`- **Absent** : ${s.absent}`);
-      lines.push(`- **Taux de participation** : ${s.participationRate}%`);
+      const stats = data.stats;
+      lines.push("## Votes enregistrés");
+      lines.push(`- **Total** : ${stats.total}`);
+      lines.push(`- **Pour** : ${stats.pour}`);
+      lines.push(`- **Contre** : ${stats.contre}`);
+      lines.push(`- **Abstention** : ${stats.abstention}`);
+      lines.push(`- **Non-votant** : ${stats.nonVotant}`);
+      lines.push(`- ${participationLine(stats)}`);
+      if (stats.scrutinsSansVoteEnregistre !== null && stats.scrutinsSansVoteEnregistre !== undefined) {
+        lines.push(
+          `- **Scrutins éligibles sans vote enregistré** : ${stats.scrutinsSansVoteEnregistre}`,
+        );
+      }
       lines.push("");
 
-      lines.push(`## Derniers votes (page ${data.pagination.page}/${data.pagination.totalPages})`);
-      for (const v of data.votes) {
-        const resultLabel = formatResult(v.scrutin.result);
-        lines.push(`- **${v.scrutin.title}** (${formatDate(v.scrutin.votingDate)})`);
-        lines.push(`  Vote : ${formatPosition(v.position)} — Résultat : ${resultLabel}`);
+      lines.push(
+        `## Derniers votes (page ${data.pagination.page}/${data.pagination.totalPages})`,
+      );
+      for (const vote of data.votes) {
+        lines.push(
+          `- **${vote.scrutin.title}** (${formatDate(vote.scrutin.votingDate)})`,
+        );
+        lines.push(
+          `  Vote : ${formatPosition(vote.position)} — Résultat : ${formatResult(vote.scrutin.result)}`,
+        );
       }
 
       if (data.pagination.page < data.pagination.totalPages) {
@@ -245,17 +309,21 @@ export function registerVoteTools(server: McpServer): void {
       return {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
-          politician: { slug: data.politician.slug, fullName: data.politician.fullName },
+          politician: {
+            slug: data.politician.slug,
+            fullName: data.politician.fullName,
+          },
           stats: data.stats,
-          votes: data.votes.map((v) => ({
-            position: v.position,
+          votes: data.votes.map((vote) => ({
+            position: vote.position,
             scrutin: {
-              title: v.scrutin.title,
-              votingDate: v.scrutin.votingDate,
-              result: v.scrutin.result,
-              votesFor: v.scrutin.votesFor,
-              votesAgainst: v.scrutin.votesAgainst,
-              votesAbstain: v.scrutin.votesAbstain,
+              title: vote.scrutin.title,
+              votingDate: vote.scrutin.votingDate,
+              result: vote.scrutin.result,
+              votesFor: vote.scrutin.votesFor,
+              votesAgainst: vote.scrutin.votesAgainst,
+              votesAbstain: vote.scrutin.votesAbstain,
+              sourceUrl: vote.scrutin.sourceUrl,
             },
           })),
           page: data.pagination.page,
@@ -268,11 +336,19 @@ export function registerVoteTools(server: McpServer): void {
   server.registerTool(
     "get_vote_stats",
     {
-      description: "Obtenir les statistiques de vote par parti : cohésion, scrutins divisifs, distribution globale.",
+      description:
+        "Obtenir les statistiques de vote par parti : cohésion, scrutins divisifs et distribution globale. Les taux de participation non publiables restent explicitement indisponibles.",
       inputSchema: {
-        chamber: z.enum(["AN", "SENAT"]).optional().describe("Filtrer par chambre : AN (Assemblée) ou SÉNAT"),
+        chamber: z
+          .enum(["AN", "SENAT"])
+          .optional()
+          .describe("Filtrer par chambre : AN (Assemblée) ou SENAT"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Calcul des statistiques de vote...",
         "openai/toolInvocation/invoked": "Statistiques calculées",
@@ -284,32 +360,45 @@ export function registerVoteTools(server: McpServer): void {
       });
 
       const lines: string[] = [];
-      const chamberLabel = chamber === "AN" ? "Assemblée nationale" : chamber === "SENAT" ? "Sénat" : "Toutes chambres";
+      const chamberLabel =
+        chamber === "AN"
+          ? "Assemblée nationale"
+          : chamber === "SENAT"
+            ? "Sénat"
+            : "Toutes chambres";
       lines.push(`# Statistiques de vote — ${chamberLabel}`);
       lines.push("");
 
       lines.push("## Vue globale");
       lines.push(`- **Total scrutins** : ${data.global.totalScrutins}`);
-      lines.push(`- **Total votes** : ${data.global.totalVotes}`);
+      lines.push(`- **Total votes exprimés recensés** : ${data.global.totalVotes}`);
       lines.push(`- Pour : ${data.global.totalVotesFor}`);
       lines.push(`- Contre : ${data.global.totalVotesAgainst}`);
       lines.push(`- Abstention : ${data.global.totalVotesAbstain}`);
-      lines.push(`- **Adoptés** : ${data.global.adoptes} — **Rejetés** : ${data.global.rejetes}`);
-      lines.push(`- **Taux de participation** : ${data.global.participationRate}%`);
+      lines.push(
+        `- **Adoptés** : ${data.global.adoptes} — **Rejetés** : ${data.global.rejetes}`,
+      );
+      lines.push(`- ${participationLine(data.global)}`);
       lines.push("");
 
       lines.push("## Cohésion par parti");
-      const sorted = [...data.parties].sort((a, b) => b.cohesionRate - a.cohesionRate);
-      for (const p of sorted) {
-        lines.push(`- **${p.partyShortName}** (${p.partyName}) : ${p.cohesionRate}% de cohésion (${p.totalVotes} votes)`);
+      const sorted = [...data.parties].sort(
+        (a, b) => b.cohesionRate - a.cohesionRate,
+      );
+      for (const party of sorted) {
+        lines.push(
+          `- **${party.partyShortName}** (${party.partyName}) : ${party.cohesionRate}% de cohésion (${party.totalVotes} votes enregistrés)`,
+        );
       }
       lines.push("");
 
       if (data.divisiveScrutins.length > 0) {
         lines.push("## Scrutins les plus divisifs");
-        for (const s of data.divisiveScrutins.slice(0, 10)) {
-          lines.push(`- **${s.title}** (${formatDate(s.votingDate)})`);
-          lines.push(`  Pour: ${s.votesFor}, Contre: ${s.votesAgainst}, Abstention: ${s.votesAbstain} — Score de division : ${s.divisionScore}%`);
+        for (const scrutin of data.divisiveScrutins.slice(0, 10)) {
+          lines.push(`- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`);
+          lines.push(
+            `  Pour: ${scrutin.votesFor}, Contre: ${scrutin.votesAgainst}, Abstention: ${scrutin.votesAbstain} — Score de division : ${scrutin.divisionScore}%`,
+          );
         }
       }
 
@@ -317,21 +406,24 @@ export function registerVoteTools(server: McpServer): void {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
           global: data.global,
-          parties: data.parties.map((p) => ({
-            shortName: p.partyShortName,
-            name: p.partyName,
-            cohesionRate: p.cohesionRate,
-            participationRate: p.participationRate,
-            totalVotes: p.totalVotes,
+          parties: data.parties.map((party) => ({
+            shortName: party.partyShortName,
+            name: party.partyName,
+            cohesionRate: party.cohesionRate,
+            participationRate: party.participationRate,
+            participationStatus: party.participationStatus ?? null,
+            totalVotes: party.totalVotes,
           })),
-          divisiveScrutins: data.divisiveScrutins.slice(0, 10).map((s) => ({
-            title: s.title,
-            votingDate: s.votingDate,
-            votesFor: s.votesFor,
-            votesAgainst: s.votesAgainst,
-            votesAbstain: s.votesAbstain,
-            divisionScore: s.divisionScore,
-          })),
+          divisiveScrutins: data.divisiveScrutins
+            .slice(0, 10)
+            .map((scrutin) => ({
+              title: scrutin.title,
+              votingDate: scrutin.votingDate,
+              votesFor: scrutin.votesFor,
+              votesAgainst: scrutin.votesAgainst,
+              votesAbstain: scrutin.votesAbstain,
+              divisionScore: scrutin.divisionScore,
+            })),
         },
       };
     },
