@@ -4,6 +4,7 @@ import { fetchAPI, formatDate } from "../api.js";
 import {
   canPublishStartDate,
   type FieldPublicationStatus,
+  isPublishedNumber,
   quoteData,
   UNVERIFIED_DATE_NOTICE,
 } from "../editorial.js";
@@ -61,10 +62,10 @@ interface PoliticianDetail extends PoliticianListItem {
   declarations: Declaration[];
   /** Legacy compatibility total: all published roles combined. */
   affairsCount: number;
-  adverseAffairsCount?: number;
-  affairsMentionedCount?: number;
-  affairsVictimOrPlaintiffCount?: number;
-  favorableOutcomeCount?: number;
+  adverseAffairsCount?: number | null;
+  affairsMentionedCount?: number | null;
+  affairsVictimOrPlaintiffCount?: number | null;
+  favorableOutcomeCount?: number | null;
   factchecksCount?: number;
 }
 
@@ -151,27 +152,27 @@ function formatPoliticianDetail(politician: PoliticianDetail): string {
     politician.favorableOutcomeCount,
     politician.affairsMentionedCount,
     politician.affairsVictimOrPlaintiffCount,
-  ].some((count) => count !== undefined);
+  ].some(isPublishedNumber);
 
   if (hasRoleAwareAffairCounts) {
     lines.push("");
     lines.push("## Affaires judiciaires publiées, par rôle");
-    if (politician.adverseAffairsCount !== undefined) {
+    if (isPublishedNumber(politician.adverseAffairsCount)) {
       lines.push(
         `- Mise en cause avec seuil judiciaire public atteint : ${politician.adverseAffairsCount}`,
       );
     }
-    if (politician.favorableOutcomeCount !== undefined) {
+    if (isPublishedNumber(politician.favorableOutcomeCount)) {
       lines.push(
         `- Procédures closes sans condamnation : ${politician.favorableOutcomeCount}`,
       );
     }
-    if (politician.affairsMentionedCount !== undefined) {
+    if (isPublishedNumber(politician.affairsMentionedCount)) {
       lines.push(
         `- Simplement mentionné : ${politician.affairsMentionedCount}`,
       );
     }
-    if (politician.affairsVictimOrPlaintiffCount !== undefined) {
+    if (isPublishedNumber(politician.affairsVictimOrPlaintiffCount)) {
       lines.push(
         `- Victime ou plaignant : ${politician.affairsVictimOrPlaintiffCount}`,
       );

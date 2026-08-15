@@ -75,6 +75,9 @@ export function participationLine(
   return "**Taux de participation** : non publié avec les données actuellement disponibles";
 }
 
+export function isPublishedNumber(value: unknown): value is number {
+  return typeof value === "number";
+}
 export function canPublishStartDate(status: FieldPublicationStatus | undefined): boolean {
   // Old API responses do not carry a publication status. Absence is therefore
   // unknown, never equivalent to AVAILABLE.
