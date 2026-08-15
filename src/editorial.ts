@@ -55,7 +55,8 @@ export function affairSemanticsLines(
   }
 
   lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);
-  lines.push(`_${semantics.statusDescription}_`);
+  lines.push("_Description du statut, donnée Poligraph :_");
+  lines.push(quoteData(semantics.statusDescription));
 
   return lines;
 }

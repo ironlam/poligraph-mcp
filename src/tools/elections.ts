@@ -193,7 +193,7 @@ export function registerElectionTools(server: McpServer): void {
           ? formatDate(election.round1Date)
           : "Date non renseignée";
         const confirmed =
-          election.round1Date && !election.dateConfirmed ? " (non confirmée)" : "";
+          election.round1Date && !election.dateConfirmed ? " (date non confirmée)" : "";
         const seats =
           election.totalSeats !== null ? ` — ${election.totalSeats} sièges` : "";
         const candidacies =
@@ -272,7 +272,7 @@ export function registerElectionTools(server: McpServer): void {
 
       if (data.round1Date) {
         lines.push(
-          `**1er tour** : ${formatDate(data.round1Date)}${!data.dateConfirmed ? " (non confirmé)" : ""}`,
+          `**1er tour** : ${formatDate(data.round1Date)}${!data.dateConfirmed ? " (date non confirmée)" : ""}`,
         );
       }
       if (data.round2Date) {
