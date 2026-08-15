@@ -13,8 +13,10 @@
     "inspect": "npx @modelcontextprotocol/inspector build/index.js",
     "start:http": "node build/http.js",
     "dev:http": "tsc && node build/http.js",
-    "test": "node --test build/tests/api-contract.test.js",
-    "test:build": "tsc && node --test build/tests/api-contract.test.js"
+    "test": "npm run test:unit && npm run test:contract",
+    "test:unit": "node --test build/tests/editorial.test.js",
+    "test:contract": "node --test build/tests/api-contract.test.js",
+    "test:build": "tsc && npm test"
   },
   "keywords": [
     "mcp",
