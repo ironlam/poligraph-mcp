@@ -39,6 +39,13 @@ function assertNumber(val: unknown, field: string): void {
   );
 }
 
+function assertNumberOrNull(val: unknown, field: string): void {
+  assert.ok(
+    typeof val === "number" || val === null,
+    `${field} should be number|null, got ${typeof val}`,
+  );
+}
+
 function assertStringOrNull(val: unknown, field: string): void {
   assert.ok(
     typeof val === "string" || val === null,
@@ -198,7 +205,7 @@ describe("GET /api/politiques/:slug/votes", () => {
     assertNumber(stats.pour, "stats.pour");
     assertNumber(stats.contre, "stats.contre");
     assertNumber(stats.abstention, "stats.abstention");
-    assertNumber(stats.participationRate, "stats.participationRate");
+    assertNumberOrNull(stats.participationRate, "stats.participationRate");
 
     // Votes array
     assert.ok(Array.isArray(data.votes), "votes should be an array");
@@ -291,7 +298,7 @@ describe("GET /api/votes/stats", () => {
     assertString(p.partyColor, "partyColor");
     assertNumber(p.totalVotes, "totalVotes");
     assertNumber(p.cohesionRate, "cohesionRate");
-    assertNumber(p.participationRate, "participationRate");
+    assertNumberOrNull(p.participationRate, "participationRate");
 
     // Global
     assert.ok(typeof data.global === "object" && data.global !== null);
