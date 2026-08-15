@@ -24,7 +24,10 @@ export const PARTICIPATION_PUBLICATION_STATUSES = [
   "COMPUTATION_INCOMPLETE",
 ] as const;
 
-export const START_DATE_PUBLICATION_STATUSES = ["AVAILABLE", "UNVERIFIED"] as const;
+export const START_DATE_PUBLICATION_STATUSES = [
+  "AVAILABLE",
+  "UNVERIFIED",
+] as const;
 
 export const PRESUMPTION_NOTICE =
   "**Prudence** : la procédure est en cours ou la décision n'est pas définitive. La présomption d'innocence s'applique.";
@@ -56,6 +59,26 @@ export function knownEnumCode<T extends string>(
     (allowed as readonly string[]).includes(value)
     ? (value as T)
     : null;
+}
+
+export function normalizeKnownEnumCounts<T extends string>(
+  counts: Record<string, number>,
+  allowed: readonly T[],
+): { known: Partial<Record<T, number>>; unrecognizedCount: number } {
+  const known: Partial<Record<T, number>> = {};
+  let unrecognizedCount = 0;
+
+  for (const [code, count] of Object.entries(counts)) {
+    if (!Number.isFinite(count) || count < 0) continue;
+    const knownCode = knownEnumCode(code, allowed);
+    if (knownCode) {
+      known[knownCode] = count;
+    } else {
+      unrecognizedCount += count;
+    }
+  }
+
+  return { known, unrecognizedCount };
 }
 
 export function affairSemanticsLines(

@@ -187,7 +187,9 @@ function formatAffairDetail(
   lines.push(...affairSemanticsLines(affair.semantics));
 
   if (affair.factsDate) {
-    lines.push(`**Date des faits de l'affaire** : ${formatDate(affair.factsDate)}`);
+    lines.push(
+      `**Date des faits de l'affaire** : ${formatDate(affair.factsDate)}`,
+    );
   }
   if (affair.startDate) {
     lines.push(`**Début de la procédure** : ${formatDate(affair.startDate)}`);
@@ -200,8 +202,14 @@ function formatAffairDetail(
     if (affair.verdictDate) {
       lines.push(`**Date du verdict** : ${formatDate(affair.verdictDate)}`);
     }
-    if (affair.sentence) lines.push(`**Peine** : ${affair.sentence}`);
-    if (affair.appeal) lines.push(`**Recours** : ${affair.appeal}`);
+    if (affair.sentence) {
+      lines.push("**Peine, donnée Poligraph :**");
+      lines.push(quoteData(affair.sentence));
+    }
+    if (affair.appeal) {
+      lines.push("**Recours, donnée Poligraph :**");
+      lines.push(quoteData(affair.appeal));
+    }
   }
 
   if (affair.partyAtTime) {
@@ -358,10 +366,7 @@ export function registerAffairTools(server: McpServer): void {
           ? ` (${affair.politician.currentParty.shortName})`
           : "";
         lines.push(
-          formatAffairDetail(
-            affair,
-            `${affair.politician.fullName}${party}`,
-          ),
+          formatAffairDetail(affair, `${affair.politician.fullName}${party}`),
         );
         lines.push("");
         lines.push("---");

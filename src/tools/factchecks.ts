@@ -1,7 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
-import { knownEnumCode, quoteData } from "../editorial.js";
+import {
+  knownEnumCode,
+  normalizeKnownEnumCounts,
+  quoteData,
+} from "../editorial.js";
 
 interface FactCheckStatsResponse {
   global: {
@@ -111,6 +115,10 @@ const FACTCHECK_RATINGS = [
   "FALSE",
   "UNVERIFIABLE",
 ] as const;
+
+function normalizeVerdictCounts(counts: Record<string, number>) {
+  return normalizeKnownEnumCounts(counts, FACTCHECK_RATINGS);
+}
 
 function formatVerdict(rating: string): string {
   const labels: Record<string, string> = {
@@ -413,10 +421,16 @@ export function registerFactCheckTools(server: McpServer): void {
       lines.push(`**${data.global.totalFactChecks} fact-checks** au total`);
       lines.push("");
       lines.push("## Répartition globale des fact-checks par verdict");
-      for (const [verdict, count] of Object.entries(data.global.byVerdict).sort(
-        (a, b) => b[1] - a[1],
+      const globalVerdicts = normalizeVerdictCounts(data.global.byVerdict);
+      for (const [verdict, count] of Object.entries(globalVerdicts.known).sort(
+        (a, b) => (b[1] ?? 0) - (a[1] ?? 0),
       )) {
         lines.push(`- ${formatVerdict(verdict)} : **${count}**`);
+      }
+      if (globalVerdicts.unrecognizedCount > 0) {
+        lines.push(
+          `- Verdict normalisé non disponible : **${globalVerdicts.unrecognizedCount}**`,
+        );
       }
 
       if (data.byParty.length > 0) {
@@ -458,22 +472,42 @@ export function registerFactCheckTools(server: McpServer): void {
       return {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
-          global: data.global,
-          byPartyMentions: data.byParty.map((party) => ({
-            partyShortName: party.partyShortName,
-            partyName: party.partyName,
-            partySlug: party.partySlug,
-            totalMentions: party.totalMentions,
-            factcheckVerdictsForMentions: party.byVerdict,
-          })),
-          byPoliticianMentions: data.byPolitician.map((politician) => ({
-            fullName: politician.fullName,
-            slug: politician.slug,
-            partyShortName: politician.partyShortName,
-            totalMentions: politician.totalMentions,
-            factcheckVerdictsForMentions: politician.byVerdict,
-          })),
-          bySource: data.bySource,
+          global: {
+            totalFactChecks: data.global.totalFactChecks,
+            byVerdict: globalVerdicts.known,
+            unrecognizedVerdictCount: globalVerdicts.unrecognizedCount,
+          },
+          byPartyMentions: data.byParty.map((party) => {
+            const verdicts = normalizeVerdictCounts(party.byVerdict);
+            return {
+              partyShortName: party.partyShortName,
+              partyName: party.partyName,
+              partySlug: party.partySlug,
+              totalMentions: party.totalMentions,
+              factcheckVerdictsForMentions: verdicts.known,
+              unrecognizedVerdictMentions: verdicts.unrecognizedCount,
+            };
+          }),
+          byPoliticianMentions: data.byPolitician.map((politician) => {
+            const verdicts = normalizeVerdictCounts(politician.byVerdict);
+            return {
+              fullName: politician.fullName,
+              slug: politician.slug,
+              partyShortName: politician.partyShortName,
+              totalMentions: politician.totalMentions,
+              factcheckVerdictsForMentions: verdicts.known,
+              unrecognizedVerdictMentions: verdicts.unrecognizedCount,
+            };
+          }),
+          bySource: data.bySource.map((source) => {
+            const verdicts = normalizeVerdictCounts(source.byVerdict);
+            return {
+              source: source.source,
+              total: source.total,
+              factcheckVerdicts: verdicts.known,
+              unrecognizedVerdictCount: verdicts.unrecognizedCount,
+            };
+          }),
           aggregationCaution:
             "Party/politician aggregates count mentions, not necessarily claimants.",
         },
