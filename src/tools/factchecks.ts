@@ -122,9 +122,9 @@ function formatFactCheck(
   const lines: string[] = [];
 
   lines.push(`### ${factCheck.title}`);
-  lines.push(
-    `**Verdict du fact-check** : ${formatVerdict(factCheck.verdictRating)} — "${factCheck.verdict}"`,
-  );
+  lines.push(`**Verdict normalisé du fact-check** : ${formatVerdict(factCheck.verdictRating)}`);
+  lines.push("_Verdict détaillé, donnée source :_");
+  lines.push(quoteData(factCheck.verdict));
   lines.push(`**Source** : [${factCheck.source}](${factCheck.sourceUrl})`);
   lines.push(`**Publié le** : ${formatDate(factCheck.publishedAt)}`);
 

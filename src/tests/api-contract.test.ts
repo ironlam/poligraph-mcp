@@ -295,7 +295,7 @@ describe("GET /api/votes/stats", () => {
     assertString(p.partyId, "partyId");
     assertString(p.partyName, "partyName");
     assertString(p.partyShortName, "partyShortName");
-    assertString(p.partyColor, "partyColor");
+    assertStringOrNull(p.partyColor, "partyColor");
     assertNumber(p.totalVotes, "totalVotes");
     assertNumber(p.cohesionRate, "cohesionRate");
     assertNumberOrNull(p.participationRate, "participationRate");

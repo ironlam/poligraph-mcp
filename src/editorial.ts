@@ -16,7 +16,10 @@ export interface ParticipationPublication {
   participationStatus?: string;
 }
 
-export type FieldPublicationStatus = "AVAILABLE" | "UNVERIFIED" | string;
+export type FieldPublicationStatus =
+  | "AVAILABLE"
+  | "UNVERIFIED"
+  | (string & {});
 
 export const PRESUMPTION_NOTICE =
   "**Prudence** : la procédure est en cours ou la décision n'est pas définitive. La présomption d'innocence s'applique.";
