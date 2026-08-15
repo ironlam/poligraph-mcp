@@ -105,13 +105,20 @@ export function affairSemanticsLines(
   return lines;
 }
 
-export function participationLine(value: ParticipationPublication): string {
-  if (
-    value.participationStatus === "AVAILABLE" &&
+export function publishedParticipationRate(
+  value: ParticipationPublication,
+): number | null {
+  return value.participationStatus === "AVAILABLE" &&
     value.participationRate !== null &&
     Number.isFinite(value.participationRate)
-  ) {
-    return `**Taux de participation** : ${value.participationRate}%`;
+    ? value.participationRate
+    : null;
+}
+
+export function participationLine(value: ParticipationPublication): string {
+  const rate = publishedParticipationRate(value);
+  if (rate !== null) {
+    return `**Taux de participation** : ${rate}%`;
   }
 
   return "**Taux de participation** : non publié avec les données actuellement disponibles";

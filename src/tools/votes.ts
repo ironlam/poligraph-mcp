@@ -5,6 +5,7 @@ import {
   knownEnumCode,
   participationLine,
   PARTICIPATION_PUBLICATION_STATUSES,
+  publishedParticipationRate,
 } from "../editorial.js";
 
 interface ScrutinListItem {
@@ -336,6 +337,7 @@ export function registerVoteTools(server: McpServer): void {
           },
           stats: {
             ...data.stats,
+            participationRate: publishedParticipationRate(data.stats),
             participationStatus: knownEnumCode(
               data.stats.participationStatus,
               PARTICIPATION_PUBLICATION_STATUSES,
@@ -438,6 +440,7 @@ export function registerVoteTools(server: McpServer): void {
         structuredContent: {
           global: {
             ...data.global,
+            participationRate: publishedParticipationRate(data.global),
             participationStatus: knownEnumCode(
               data.global.participationStatus,
               PARTICIPATION_PUBLICATION_STATUSES,
@@ -447,7 +450,7 @@ export function registerVoteTools(server: McpServer): void {
             shortName: party.partyShortName,
             name: party.partyName,
             cohesionRate: party.cohesionRate,
-            participationRate: party.participationRate,
+            participationRate: publishedParticipationRate(party),
             participationStatus: knownEnumCode(
               party.participationStatus,
               PARTICIPATION_PUBLICATION_STATUSES,

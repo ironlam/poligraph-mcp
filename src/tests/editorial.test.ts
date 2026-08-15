@@ -8,6 +8,7 @@ import {
   normalizeKnownEnumCounts,
   PARTICIPATION_PUBLICATION_STATUSES,
   participationLine,
+  publishedParticipationRate,
   START_DATE_PUBLICATION_STATUSES,
   quoteData,
 } from "../editorial.js";
@@ -31,9 +32,35 @@ test("participation is rendered only when explicitly AVAILABLE", () => {
 });
 
 test("a numeric participation rate without publication status stays unpublished", () => {
-  const line = participationLine({ participationRate: 100 });
+  const value = { participationRate: 100 };
+  const line = participationLine(value);
   assert.match(line, /non publié/);
   assert.doesNotMatch(line, /100%/);
+  assert.equal(publishedParticipationRate(value), null);
+});
+
+test("structured participation preserves real zero only when explicitly AVAILABLE", () => {
+  assert.equal(
+    publishedParticipationRate({
+      participationRate: 0,
+      participationStatus: "AVAILABLE",
+    }),
+    0,
+  );
+  assert.equal(
+    publishedParticipationRate({
+      participationRate: 73.4,
+      participationStatus: "SOURCE_INSUFFICIENT",
+    }),
+    null,
+  );
+  assert.equal(
+    publishedParticipationRate({
+      participationRate: Number.NaN,
+      participationStatus: "AVAILABLE",
+    }),
+    null,
+  );
 });
 
 test("missing mandate publication status is unknown, never AVAILABLE", () => {
