@@ -92,6 +92,33 @@ test("fetchAPI enforces the same-origin public /api/ path boundary", async () =>
   assert.equal(called, false);
 });
 
+test("fetchAPI rejects encoded traversal outside the /api/ boundary", async () => {
+  let called = false;
+  globalThis.fetch = async () => {
+    called = true;
+    return new Response("{}", { status: 200 });
+  };
+
+  for (const path of [
+    "/api/%2e%2e/robots.txt",
+    "/api/%252e%252e/robots.txt",
+    "/api/..%2Frobots.txt",
+    "/api/%2e%2frobots.txt",
+  ]) {
+    await assert.rejects(
+      () => fetchAPI(path),
+      (error: unknown) => {
+        assert.ok(error instanceof ApiError);
+        assert.equal(error.status, 400);
+        assert.match(error.message, /Chemin API Poligraph invalide/);
+        return true;
+      },
+    );
+  }
+
+  assert.equal(called, false);
+});
+
 test("fetchAPI disables redirects", async () => {
   globalThis.fetch = async (_input, init) => {
     assert.equal(init?.redirect, "error");
