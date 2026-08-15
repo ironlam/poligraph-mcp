@@ -107,7 +107,7 @@ function formatElectionStatus(status: string): string {
   return labels[status] ?? "Statut non disponible";
 }
 
-function candidacyLine(candidacy: Candidacy): string {
+export function candidacyLine(candidacy: Candidacy): string {
   const party = candidacy.party
     ? ` (${candidacy.party.shortName})`
     : candidacy.partyLabel
