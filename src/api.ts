@@ -32,6 +32,10 @@ export class ApiError extends Error {
   }
 }
 
+function isTimeoutError(error: unknown): boolean {
+  return error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+}
+
 async function readBoundedBody(response: Response): Promise<string> {
   if (!response.body) return "";
 
@@ -41,7 +45,17 @@ async function readBoundedBody(response: Response): Promise<string> {
 
   try {
     while (true) {
-      const { done, value } = await reader.read();
+      let readResult: ReadableStreamReadResult<Uint8Array>;
+      try {
+        readResult = await reader.read();
+      } catch (error) {
+        if (isTimeoutError(error)) {
+          throw new ApiError(504, "Délai dépassé pour l'API publique Poligraph");
+        }
+        throw new ApiError(502, "API publique Poligraph indisponible");
+      }
+
+      const { done, value } = readResult;
       if (done) break;
       if (!value) continue;
 
@@ -100,7 +114,7 @@ export async function fetchAPI<T>(
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (error) {
-    if (error instanceof Error && error.name === "TimeoutError") {
+    if (isTimeoutError(error)) {
       throw new ApiError(504, "Délai dépassé pour l'API publique Poligraph");
     }
     throw new ApiError(502, "API publique Poligraph indisponible");
