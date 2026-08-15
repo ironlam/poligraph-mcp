@@ -113,11 +113,11 @@ function candidacyLine(candidacy: Candidacy): string {
     : candidacy.partyLabel
       ? ` (${candidacy.partyLabel})`
       : "";
-  const r1 =
-    candidacy.round1Pct !== null ? ` — T1: ${candidacy.round1Pct}%` : "";
-  const r2 =
-    candidacy.round2Pct !== null ? `, T2: ${candidacy.round2Pct}%` : "";
-  return `${candidacy.candidateName}${party}${r1}${r2}`;
+  const results: string[] = [];
+  if (candidacy.round1Pct !== null) results.push(`T1: ${candidacy.round1Pct}%`);
+  if (candidacy.round2Pct !== null) results.push(`T2: ${candidacy.round2Pct}%`);
+  const result = results.length > 0 ? ` — ${results.join(", ")}` : "";
+  return `${candidacy.candidateName}${party}${result}`;
 }
 
 export function registerElectionTools(server: McpServer): void {
