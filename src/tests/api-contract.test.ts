@@ -53,6 +53,14 @@ function assertStringOrNull(val: unknown, field: string): void {
   );
 }
 
+function assertParticipationStatus(val: unknown, field: string): void {
+  assertString(val, field);
+  assert.ok(
+    ["AVAILABLE", "SOURCE_INSUFFICIENT", "COMPUTATION_INCOMPLETE"].includes(val as string),
+    `${field} has unexpected value ${String(val)}`,
+  );
+}
+
 function assertPagination(obj: Record<string, unknown>): void {
   assertNumber(obj.page, "pagination.page");
   assertNumber(obj.limit, "pagination.limit");
@@ -133,6 +141,7 @@ describe("GET /api/politiques/:slug", () => {
       assertString(m.type, "mandate.type");
       assertString(m.title, "mandate.title");
       assertString(m.startDate, "mandate.startDate");
+      assertString(m.startDatePublicationStatus, "mandate.startDatePublicationStatus");
       assert.equal(
         typeof m.isCurrent,
         "boolean",
@@ -206,6 +215,7 @@ describe("GET /api/politiques/:slug/votes", () => {
     assertNumber(stats.contre, "stats.contre");
     assertNumber(stats.abstention, "stats.abstention");
     assertNumberOrNull(stats.participationRate, "stats.participationRate");
+    assertParticipationStatus(stats.participationStatus, "stats.participationStatus");
 
     // Votes array
     assert.ok(Array.isArray(data.votes), "votes should be an array");
@@ -299,6 +309,7 @@ describe("GET /api/votes/stats", () => {
     assertNumber(p.totalVotes, "totalVotes");
     assertNumber(p.cohesionRate, "cohesionRate");
     assertNumberOrNull(p.participationRate, "participationRate");
+    assertParticipationStatus(p.participationStatus, "participationStatus");
 
     // Global
     assert.ok(typeof data.global === "object" && data.global !== null);
@@ -325,6 +336,25 @@ describe("GET /api/votes/stats", () => {
       assertNumber(d.divisionScore, "divisive.divisionScore");
     }
   });
+
+  it("requires Senate participation publication status", async () => {
+    const data = await fetchJSON<Record<string, unknown>>(
+      "/api/votes/stats?chamber=SENAT&limit=3",
+    );
+
+    assert.ok(Array.isArray(data.parties), "Senate parties should be an array");
+    const parties = data.parties as Record<string, unknown>[];
+    assert.ok(parties.length > 0, "should return Senate party stats");
+
+    for (const party of parties) {
+      assertNumberOrNull(party.participationRate, "senate.participationRate");
+      assertParticipationStatus(
+        party.participationStatus,
+        "senate.participationStatus",
+      );
+    }
+  });
+
 });
 
 describe("GET /api/search/advanced", () => {
