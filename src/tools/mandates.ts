@@ -121,9 +121,13 @@ export function registerMandateTools(server: McpServer): void {
         } else {
           const end = mandate.endDate
             ? `Terminé le ${formatDate(mandate.endDate)}`
-            : "Mandat terminé";
+            : "Mandat terminé — date de fin non renseignée";
           if (canPublishStartDate(mandate.startDatePublicationStatus)) {
-            lines.push(`  ${formatDate(mandate.startDate)} → ${formatDate(mandate.endDate)}`);
+            lines.push(
+              mandate.endDate
+                ? `  ${formatDate(mandate.startDate)} → ${formatDate(mandate.endDate)}`
+                : `  Depuis ${formatDate(mandate.startDate)} — mandat indiqué comme terminé, date de fin non renseignée`,
+            );
           } else {
             lines.push(`  ${end} — date de début non publiée`);
           }
