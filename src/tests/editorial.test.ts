@@ -39,6 +39,12 @@ test("missing affair semantics fails safe without exposing an internal code", ()
   assert.doesNotMatch(lines, /MISE_EN_EXAMEN|CONDAMNATION_DEFINITIVE/);
 });
 
+test("null affair semantics fails safe exactly like missing semantics", () => {
+  const lines = affairSemanticsLines(null).join("\n");
+  assert.match(lines, /indisponible/);
+  assert.doesNotMatch(lines, /MISE_EN_EXAMEN|CONDAMNATION_DEFINITIVE/);
+});
+
 test("victim semantics explicitly prevent status attribution to the tracked person", () => {
   const lines = affairSemanticsLines({
     involvementLabel: "Victime",
