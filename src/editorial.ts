@@ -37,6 +37,22 @@ export function quoteData(text: string): string {
     .join("\n");
 }
 
+/**
+ * Preserve a structured enum only when its meaning is known by this MCP build.
+ * New upstream codes remain unknown (`null`) instead of being interpreted or
+ * surfaced as if they were part of the reviewed editorial vocabulary.
+ */
+export function knownEnumCode<T extends string>(
+  value: string | null | undefined,
+  allowed: readonly T[],
+): T | null {
+  return value !== null &&
+    value !== undefined &&
+    (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : null;
+}
+
 export function affairSemanticsLines(
   semantics: AffairSemantics | null | undefined,
 ): string[] {
