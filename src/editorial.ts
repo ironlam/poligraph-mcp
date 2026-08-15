@@ -16,10 +16,7 @@ export interface ParticipationPublication {
   participationStatus?: string;
 }
 
-export type FieldPublicationStatus =
-  | "AVAILABLE"
-  | "UNVERIFIED"
-  | (string & {});
+export type FieldPublicationStatus = "AVAILABLE" | "UNVERIFIED" | (string & {});
 
 export const PRESUMPTION_NOTICE =
   "**Prudence** : la procédure est en cours ou la décision n'est pas définitive. La présomption d'innocence s'applique.";
@@ -77,9 +74,7 @@ export function affairSemanticsLines(
   return lines;
 }
 
-export function participationLine(
-  value: ParticipationPublication,
-): string {
+export function participationLine(value: ParticipationPublication): string {
   if (
     value.participationStatus === "AVAILABLE" &&
     value.participationRate !== null &&
@@ -94,7 +89,9 @@ export function participationLine(
 export function isPublishedNumber(value: unknown): value is number {
   return typeof value === "number";
 }
-export function canPublishStartDate(status: FieldPublicationStatus | undefined): boolean {
+export function canPublishStartDate(
+  status: FieldPublicationStatus | undefined,
+): boolean {
   // Old API responses do not carry a publication status. Absence is therefore
   // unknown, never equivalent to AVAILABLE.
   return status === "AVAILABLE";

@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
+import { knownEnumCode } from "../editorial.js";
 
 interface ElectionListItem {
   id: string;
@@ -79,6 +80,28 @@ interface ElectionDetailResponse {
   rounds: Round[];
 }
 
+const ELECTION_TYPES = [
+  "PRESIDENTIELLE",
+  "LEGISLATIVES",
+  "SENATORIALES",
+  "MUNICIPALES",
+  "DEPARTEMENTALES",
+  "REGIONALES",
+  "EUROPEENNES",
+  "REFERENDUM",
+] as const;
+
+const ELECTION_STATUSES = [
+  "UPCOMING",
+  "REGISTRATION",
+  "CANDIDACIES",
+  "CAMPAIGN",
+  "ROUND_1",
+  "BETWEEN_ROUNDS",
+  "ROUND_2",
+  "COMPLETED",
+] as const;
+
 function formatElectionType(type: string): string {
   const labels: Record<string, string> = {
     PRESIDENTIELLE: "Présidentielle",
@@ -153,7 +176,11 @@ export function registerElectionTools(server: McpServer): void {
           ])
           .optional()
           .describe("Filtrer par statut"),
-        year: z.number().int().optional().describe("Filtrer par année (ex: 2027)"),
+        year: z
+          .number()
+          .int()
+          .optional()
+          .describe("Filtrer par année (ex: 2027)"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
         limit: z
           .number()
@@ -193,9 +220,13 @@ export function registerElectionTools(server: McpServer): void {
           ? formatDate(election.round1Date)
           : "Date non renseignée";
         const confirmed =
-          election.round1Date && !election.dateConfirmed ? " (date non confirmée)" : "";
+          election.round1Date && !election.dateConfirmed
+            ? " (date non confirmée)"
+            : "";
         const seats =
-          election.totalSeats !== null ? ` — ${election.totalSeats} sièges` : "";
+          election.totalSeats !== null
+            ? ` — ${election.totalSeats} sièges`
+            : "";
         const candidacies =
           election.candidacyCount > 0
             ? ` — ${election.candidacyCount} candidature(s)`
@@ -223,9 +254,9 @@ export function registerElectionTools(server: McpServer): void {
           totalPages: data.pagination.totalPages,
           items: data.data.map((election) => ({
             slug: election.slug,
-            type: election.type,
+            type: knownEnumCode(election.type, ELECTION_TYPES),
             title: election.title,
-            status: election.status,
+            status: knownEnumCode(election.status, ELECTION_STATUSES),
             round1Date: election.round1Date,
             round2Date: election.round2Date,
             dateConfirmed: election.dateConfirmed,
@@ -366,9 +397,9 @@ export function registerElectionTools(server: McpServer): void {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
           slug: data.slug,
-          type: data.type,
+          type: knownEnumCode(data.type, ELECTION_TYPES),
           title: data.title,
-          status: data.status,
+          status: knownEnumCode(data.status, ELECTION_STATUSES),
           round1Date: data.round1Date,
           round2Date: data.round2Date,
           dateConfirmed: data.dateConfirmed,

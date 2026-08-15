@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
-import { quoteData } from "../editorial.js";
+import { knownEnumCode, quoteData } from "../editorial.js";
 
 interface FactCheckStatsResponse {
   global: {
@@ -101,6 +101,17 @@ interface PoliticianFactChecksResponse {
   };
 }
 
+const FACTCHECK_RATINGS = [
+  "TRUE",
+  "MOSTLY_TRUE",
+  "HALF_TRUE",
+  "MISLEADING",
+  "OUT_OF_CONTEXT",
+  "MOSTLY_FALSE",
+  "FALSE",
+  "UNVERIFIABLE",
+] as const;
+
 function formatVerdict(rating: string): string {
   const labels: Record<string, string> = {
     TRUE: "Vrai",
@@ -122,7 +133,9 @@ function formatFactCheck(
   const lines: string[] = [];
 
   lines.push(`### ${factCheck.title}`);
-  lines.push(`**Verdict normalisé du fact-check** : ${formatVerdict(factCheck.verdictRating)}`);
+  lines.push(
+    `**Verdict normalisé du fact-check** : ${formatVerdict(factCheck.verdictRating)}`,
+  );
   lines.push("_Verdict détaillé, donnée source :_");
   lines.push(quoteData(factCheck.verdict));
   lines.push(`**Source** : [${factCheck.source}](${factCheck.sourceUrl})`);
@@ -132,7 +145,9 @@ function formatFactCheck(
     lines.push(`**Déclarant renseigné par la source** : ${factCheck.claimant}`);
   }
   if (factCheck.claimDate) {
-    lines.push(`**Date de la déclaration** : ${formatDate(factCheck.claimDate)}`);
+    lines.push(
+      `**Date de la déclaration** : ${formatDate(factCheck.claimDate)}`,
+    );
   }
 
   lines.push("");
@@ -248,15 +263,20 @@ export function registerFactCheckTools(server: McpServer): void {
             title: factCheck.title,
             claimText: factCheck.claimText,
             claimant: factCheck.claimant,
-            verdictRating: factCheck.verdictRating,
+            verdictRating: knownEnumCode(
+              factCheck.verdictRating,
+              FACTCHECK_RATINGS,
+            ),
             verdict: factCheck.verdict,
             source: factCheck.source,
             sourceUrl: factCheck.sourceUrl,
             publishedAt: factCheck.publishedAt,
-            politiciansMentioned: factCheck.politicians.map((politicianItem) => ({
-              slug: politicianItem.slug,
-              fullName: politicianItem.fullName,
-            })),
+            politiciansMentioned: factCheck.politicians.map(
+              (politicianItem) => ({
+                slug: politicianItem.slug,
+                fullName: politicianItem.fullName,
+              }),
+            ),
           })),
         },
       };
@@ -299,7 +319,9 @@ export function registerFactCheckTools(server: McpServer): void {
       const party = data.politician.party
         ? ` (${data.politician.party.name})`
         : "";
-      lines.push(`# Fact-checks mentionnant ${data.politician.fullName}${party}`);
+      lines.push(
+        `# Fact-checks mentionnant ${data.politician.fullName}${party}`,
+      );
       lines.push(`**${data.total} fact-check(s)**`);
       lines.push(
         "_La présence dans cette liste signifie seulement que la personnalité est mentionnée dans le fact-check._",
@@ -338,7 +360,10 @@ export function registerFactCheckTools(server: McpServer): void {
             title: factCheck.title,
             claimText: factCheck.claimText,
             claimant: factCheck.claimant,
-            verdictRating: factCheck.verdictRating,
+            verdictRating: knownEnumCode(
+              factCheck.verdictRating,
+              FACTCHECK_RATINGS,
+            ),
             verdict: factCheck.verdict,
             source: factCheck.source,
             sourceUrl: factCheck.sourceUrl,
@@ -370,14 +395,18 @@ export function registerFactCheckTools(server: McpServer): void {
         openWorldHint: false,
       },
       _meta: {
-        "openai/toolInvocation/invoking": "Calcul des statistiques de fact-checks...",
+        "openai/toolInvocation/invoking":
+          "Calcul des statistiques de fact-checks...",
         "openai/toolInvocation/invoked": "Statistiques calculées",
       },
     },
     async ({ limit }) => {
-      const data = await fetchAPI<FactCheckStatsResponse>("/api/factchecks/stats", {
-        limit,
-      });
+      const data = await fetchAPI<FactCheckStatsResponse>(
+        "/api/factchecks/stats",
+        {
+          limit,
+        },
+      );
 
       const lines: string[] = [];
       lines.push("# Statistiques du corpus de fact-checks");
@@ -392,7 +421,9 @@ export function registerFactCheckTools(server: McpServer): void {
 
       if (data.byParty.length > 0) {
         lines.push("");
-        lines.push("## Mentions par parti actuel des personnalités mentionnées");
+        lines.push(
+          "## Mentions par parti actuel des personnalités mentionnées",
+        );
         lines.push(
           "_Ces volumes ne signifient pas que le parti est l'auteur des affirmations vérifiées._",
         );

@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
-import { participationLine } from "../editorial.js";
+import { knownEnumCode, participationLine } from "../editorial.js";
 
 interface ScrutinListItem {
   id: string;
@@ -121,6 +121,15 @@ interface PoliticianVotesResponse {
   };
 }
 
+const VOTE_RESULTS = ["ADOPTED", "REJECTED"] as const;
+const VOTE_POSITIONS = [
+  "POUR",
+  "CONTRE",
+  "ABSTENTION",
+  "NON_VOTANT",
+  "ABSENT",
+] as const;
+
 function formatResult(result: string): string {
   switch (result) {
     case "ADOPTED":
@@ -156,7 +165,10 @@ export function registerVoteTools(server: McpServer): void {
       description:
         "Lister les scrutins parlementaires (Assemblée nationale et Sénat) avec filtres. Un résultat inconnu reste inconnu et n'est jamais assimilé à un rejet.",
       inputSchema: {
-        search: z.string().optional().describe("Recherche dans le titre du scrutin"),
+        search: z
+          .string()
+          .optional()
+          .describe("Recherche dans le titre du scrutin"),
         result: z
           .enum(["ADOPTED", "REJECTED"])
           .optional()
@@ -201,7 +213,9 @@ export function registerVoteTools(server: McpServer): void {
       lines.push("");
 
       for (const scrutin of data.data) {
-        lines.push(`- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`);
+        lines.push(
+          `- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`,
+        );
         lines.push(
           `  ${formatResult(scrutin.result)} — Pour: ${scrutin.votesFor}, Contre: ${scrutin.votesAgainst}, Abstention: ${scrutin.votesAbstain}`,
         );
@@ -222,7 +236,7 @@ export function registerVoteTools(server: McpServer): void {
             title: scrutin.title,
             votingDate: scrutin.votingDate,
             legislature: scrutin.legislature,
-            result: scrutin.result,
+            result: knownEnumCode(scrutin.result, VOTE_RESULTS),
             votesFor: scrutin.votesFor,
             votesAgainst: scrutin.votesAgainst,
             votesAbstain: scrutin.votesAbstain,
@@ -282,7 +296,10 @@ export function registerVoteTools(server: McpServer): void {
       lines.push(`- **Abstention** : ${stats.abstention}`);
       lines.push(`- **Non-votant** : ${stats.nonVotant}`);
       lines.push(`- ${participationLine(stats)}`);
-      if (stats.scrutinsSansVoteEnregistre !== null && stats.scrutinsSansVoteEnregistre !== undefined) {
+      if (
+        stats.scrutinsSansVoteEnregistre !== null &&
+        stats.scrutinsSansVoteEnregistre !== undefined
+      ) {
         lines.push(
           `- **Scrutins éligibles sans vote enregistré** : ${stats.scrutinsSansVoteEnregistre}`,
         );
@@ -315,11 +332,11 @@ export function registerVoteTools(server: McpServer): void {
           },
           stats: data.stats,
           votes: data.votes.map((vote) => ({
-            position: vote.position,
+            position: knownEnumCode(vote.position, VOTE_POSITIONS),
             scrutin: {
               title: vote.scrutin.title,
               votingDate: vote.scrutin.votingDate,
-              result: vote.scrutin.result,
+              result: knownEnumCode(vote.scrutin.result, VOTE_RESULTS),
               votesFor: vote.scrutin.votesFor,
               votesAgainst: vote.scrutin.votesAgainst,
               votesAbstain: vote.scrutin.votesAbstain,
@@ -371,7 +388,9 @@ export function registerVoteTools(server: McpServer): void {
 
       lines.push("## Vue globale");
       lines.push(`- **Total scrutins** : ${data.global.totalScrutins}`);
-      lines.push(`- **Total votes exprimés recensés** : ${data.global.totalVotes}`);
+      lines.push(
+        `- **Total votes exprimés recensés** : ${data.global.totalVotes}`,
+      );
       lines.push(`- Pour : ${data.global.totalVotesFor}`);
       lines.push(`- Contre : ${data.global.totalVotesAgainst}`);
       lines.push(`- Abstention : ${data.global.totalVotesAbstain}`);
@@ -395,7 +414,9 @@ export function registerVoteTools(server: McpServer): void {
       if (data.divisiveScrutins.length > 0) {
         lines.push("## Scrutins les plus divisifs");
         for (const scrutin of data.divisiveScrutins.slice(0, 10)) {
-          lines.push(`- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`);
+          lines.push(
+            `- **${scrutin.title}** (${formatDate(scrutin.votingDate)})`,
+          );
           lines.push(
             `  Pour: ${scrutin.votesFor}, Contre: ${scrutin.votesAgainst}, Abstention: ${scrutin.votesAbstain} — Score de division : ${scrutin.divisionScore}%`,
           );

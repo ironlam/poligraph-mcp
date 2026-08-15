@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
-import { quoteData } from "../editorial.js";
+import { knownEnumCode, quoteData } from "../editorial.js";
 
 interface PartyListItem {
   id: string;
@@ -70,6 +70,16 @@ interface PartyDetailResponse {
   }>;
 }
 
+const POLITICAL_POSITIONS = [
+  "FAR_LEFT",
+  "LEFT",
+  "CENTER_LEFT",
+  "CENTER",
+  "CENTER_RIGHT",
+  "RIGHT",
+  "FAR_RIGHT",
+] as const;
+
 function formatPosition(position: string | null): string {
   const labels: Record<string, string> = {
     FAR_LEFT: "Extrême gauche",
@@ -95,7 +105,9 @@ export function registerPartyTools(server: McpServer): void {
           .string()
           .max(200)
           .optional()
-          .describe("Recherche par nom ou abréviation (ex: 'LFI', 'Républicains')"),
+          .describe(
+            "Recherche par nom ou abréviation (ex: 'LFI', 'Républicains')",
+          ),
         position: z
           .enum([
             "FAR_LEFT",
@@ -169,7 +181,10 @@ export function registerPartyTools(server: McpServer): void {
             slug: party.slug,
             name: party.name,
             shortName: party.shortName,
-            politicalPosition: party.politicalPosition,
+            politicalPosition: knownEnumCode(
+              party.politicalPosition,
+              POLITICAL_POSITIONS,
+            ),
             memberCount: party.memberCount,
             dissolvedDate: party.dissolvedDate,
             url: `https://poligraph.fr/partis/${party.slug}`,
@@ -218,7 +233,8 @@ export function registerPartyTools(server: McpServer): void {
         lines.push(`**Dissous** le ${formatDate(data.dissolvedDate)}`);
       }
       if (data.website) lines.push(`**Site web** : ${data.website}`);
-      if (data.ideology) lines.push(`**Idéologie renseignée** : ${data.ideology}`);
+      if (data.ideology)
+        lines.push(`**Idéologie renseignée** : ${data.ideology}`);
       if (data.description) {
         lines.push("");
         lines.push("_Description issue des données publiques Poligraph :_");
@@ -240,7 +256,9 @@ export function registerPartyTools(server: McpServer): void {
       if (data.members.length > 0) {
         lines.push("");
         lines.push(`## Membres publiés (${data.members.length})`);
-        const withMandate = data.members.filter((member) => member.currentMandate);
+        const withMandate = data.members.filter(
+          (member) => member.currentMandate,
+        );
         const withoutMandate = data.members.filter(
           (member) => !member.currentMandate,
         );
@@ -254,7 +272,9 @@ export function registerPartyTools(server: McpServer): void {
             lines.push(`- **${member.fullName}**${mandate}`);
           }
           if (withMandate.length > 30) {
-            lines.push(`_... et ${withMandate.length - 30} autres avec mandat_`);
+            lines.push(
+              `_... et ${withMandate.length - 30} autres avec mandat_`,
+            );
           }
         }
 
@@ -278,7 +298,10 @@ export function registerPartyTools(server: McpServer): void {
           slug: data.slug,
           name: data.name,
           shortName: data.shortName,
-          politicalPosition: data.politicalPosition,
+          politicalPosition: knownEnumCode(
+            data.politicalPosition,
+            POLITICAL_POSITIONS,
+          ),
           memberCount: data.memberCount,
           foundedDate: data.foundedDate,
           dissolvedDate: data.dissolvedDate,
