@@ -4,6 +4,8 @@ import { ApiError, fetchAPI, formatDate } from "../api.js";
 import {
   canPublishStartDate,
   type FieldPublicationStatus,
+  knownEnumCode,
+  START_DATE_PUBLICATION_STATUSES,
   UNVERIFIED_DATE_NOTICE,
 } from "../editorial.js";
 
@@ -160,8 +162,10 @@ export function registerMandateTools(server: McpServer): void {
               institution: mandate.institution,
               constituency: mandate.constituency,
               startDate: publishStartDate ? mandate.startDate : null,
-              startDatePublicationStatus:
-                mandate.startDatePublicationStatus ?? null,
+              startDatePublicationStatus: knownEnumCode(
+                mandate.startDatePublicationStatus,
+                START_DATE_PUBLICATION_STATUSES,
+              ),
               endDate: mandate.endDate,
               isCurrent: mandate.isCurrent,
               politician: {

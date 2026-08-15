@@ -4,6 +4,7 @@ import { ApiError, fetchAPI, formatDate } from "../api.js";
 import {
   affairSemanticsLines,
   type AffairSemantics,
+  knownEnumCode,
   PRESUMPTION_NOTICE,
   quoteData,
 } from "../editorial.js";
@@ -76,6 +77,76 @@ interface PoliticianAffairsResponse {
   affairs: AffairItem[];
   total: number;
 }
+
+const AFFAIR_STATUSES = [
+  "ENQUETE_PRELIMINAIRE",
+  "INSTRUCTION",
+  "INSTRUCTION_CLOTUREE_SANS_MISE_EN_EXAMEN",
+  "MISE_EN_EXAMEN",
+  "RENVOI_TRIBUNAL",
+  "PROCES_EN_COURS",
+  "CONDAMNATION_PREMIERE_INSTANCE",
+  "APPEL_EN_COURS",
+  "POURVOI_EN_CASSATION",
+  "CONDAMNATION_DEFINITIVE",
+  "RELAXE",
+  "ACQUITTEMENT",
+  "NON_LIEU",
+  "PRESCRIPTION",
+  "CLASSEMENT_SANS_SUITE",
+] as const;
+
+const AFFAIR_CATEGORIES = [
+  "CORRUPTION",
+  "CORRUPTION_PASSIVE",
+  "TRAFIC_INFLUENCE",
+  "PRISE_ILLEGALE_INTERETS",
+  "FAVORITISME",
+  "DETOURNEMENT_FONDS_PUBLICS",
+  "FRAUDE_FISCALE",
+  "BLANCHIMENT",
+  "ABUS_BIENS_SOCIAUX",
+  "ABUS_CONFIANCE",
+  "EMPLOI_FICTIF",
+  "FINANCEMENT_ILLEGAL_CAMPAGNE",
+  "FINANCEMENT_ILLEGAL_PARTI",
+  "HARCELEMENT_MORAL",
+  "HARCELEMENT_SEXUEL",
+  "AGRESSION_SEXUELLE",
+  "VIOLENCE",
+  "MENACE",
+  "DIFFAMATION",
+  "INJURE",
+  "INCITATION_HAINE",
+  "FAUX_ET_USAGE_FAUX",
+  "RECEL",
+  "CONFLIT_INTERETS",
+  "AUTRE",
+] as const;
+
+const AFFAIR_INVOLVEMENTS = [
+  "DIRECT",
+  "INDIRECT",
+  "MENTIONED_ONLY",
+  "VICTIM",
+  "PLAINTIFF",
+] as const;
+
+const CERTAINTY_LEVELS = [
+  "ETABLI",
+  "PRONONCE",
+  "EN_COURS",
+  "CLOS_SANS_CHARGE",
+  "CLOS_FAVORABLE",
+] as const;
+
+const JUDICIAL_MATURITY_LEVELS = [
+  "CONDAMNATION",
+  "PROCEDURE_VALIDEE",
+  "ENQUETE",
+  "INSTRUCTION_CLOSE",
+  "CLOSE_SANS_CONDAMNATION",
+] as const;
 
 function assertFilterApplied(
   affairs: AffairItem[],
@@ -175,15 +246,40 @@ function structuredAffair(affair: AffairItem) {
     slug: affair.slug,
     title: affair.title,
     contractSemanticsAvailable: semanticsAvailable,
-    statusCode: semanticsAvailable ? affair.status : null,
-    categoryCode: semanticsAvailable ? affair.category : null,
-    involvementCode: semanticsAvailable ? (affair.involvement ?? null) : null,
-    semantics: affair.semantics ?? null,
+    statusCode: semanticsAvailable
+      ? knownEnumCode(affair.status, AFFAIR_STATUSES)
+      : null,
+    categoryCode: semanticsAvailable
+      ? knownEnumCode(affair.category, AFFAIR_CATEGORIES)
+      : null,
+    involvementCode: semanticsAvailable
+      ? knownEnumCode(affair.involvement, AFFAIR_INVOLVEMENTS)
+      : null,
+    semantics: affair.semantics
+      ? {
+          ...affair.semantics,
+          statusDescription: quoteData(affair.semantics.statusDescription),
+          certaintyLevel: knownEnumCode(
+            affair.semantics.certaintyLevel,
+            CERTAINTY_LEVELS,
+          ),
+          judicialMaturity: knownEnumCode(
+            affair.semantics.judicialMaturity,
+            JUDICIAL_MATURITY_LEVELS,
+          ),
+        }
+      : null,
     factsDate: affair.factsDate,
     startDate: affair.startDate,
     verdictDate: statusAppliesToPolitician ? affair.verdictDate : null,
-    sentence: statusAppliesToPolitician ? affair.sentence : null,
-    appeal: statusAppliesToPolitician ? affair.appeal : null,
+    sentence:
+      statusAppliesToPolitician && affair.sentence
+        ? quoteData(affair.sentence)
+        : null,
+    appeal:
+      statusAppliesToPolitician && affair.appeal
+        ? quoteData(affair.appeal)
+        : null,
     sources: affair.sources.map((source) => ({
       url: source.url,
       title: source.title,

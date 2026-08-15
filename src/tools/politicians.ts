@@ -5,7 +5,9 @@ import {
   canPublishStartDate,
   type FieldPublicationStatus,
   isPublishedNumber,
+  knownEnumCode,
   quoteData,
+  START_DATE_PUBLICATION_STATUSES,
   UNVERIFIED_DATE_NOTICE,
 } from "../editorial.js";
 
@@ -457,8 +459,10 @@ export function registerPoliticianTools(server: McpServer): void {
             startDate: canPublishStartDate(mandate.startDatePublicationStatus)
               ? mandate.startDate
               : null,
-            startDatePublicationStatus:
-              mandate.startDatePublicationStatus ?? null,
+            startDatePublicationStatus: knownEnumCode(
+              mandate.startDatePublicationStatus,
+              START_DATE_PUBLICATION_STATUSES,
+            ),
             endDate: mandate.endDate,
             isCurrent: mandate.isCurrent,
           })),

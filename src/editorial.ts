@@ -18,6 +18,14 @@ export interface ParticipationPublication {
 
 export type FieldPublicationStatus = "AVAILABLE" | "UNVERIFIED" | (string & {});
 
+export const PARTICIPATION_PUBLICATION_STATUSES = [
+  "AVAILABLE",
+  "SOURCE_INSUFFICIENT",
+  "COMPUTATION_INCOMPLETE",
+] as const;
+
+export const START_DATE_PUBLICATION_STATUSES = ["AVAILABLE", "UNVERIFIED"] as const;
+
 export const PRESUMPTION_NOTICE =
   "**Prudence** : la procédure est en cours ou la décision n'est pas définitive. La présomption d'innocence s'applique.";
 

@@ -307,7 +307,7 @@ export function registerPartyTools(server: McpServer): void {
           dissolvedDate: data.dissolvedDate,
           website: data.website,
           ideology: data.ideology,
-          description: data.description,
+          description: data.description ? quoteData(data.description) : null,
           predecessor: data.predecessor
             ? {
                 slug: data.predecessor.slug,

@@ -1,7 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
-import { knownEnumCode, participationLine } from "../editorial.js";
+import {
+  knownEnumCode,
+  participationLine,
+  PARTICIPATION_PUBLICATION_STATUSES,
+} from "../editorial.js";
 
 interface ScrutinListItem {
   id: string;
@@ -330,7 +334,13 @@ export function registerVoteTools(server: McpServer): void {
             slug: data.politician.slug,
             fullName: data.politician.fullName,
           },
-          stats: data.stats,
+          stats: {
+            ...data.stats,
+            participationStatus: knownEnumCode(
+              data.stats.participationStatus,
+              PARTICIPATION_PUBLICATION_STATUSES,
+            ),
+          },
           votes: data.votes.map((vote) => ({
             position: knownEnumCode(vote.position, VOTE_POSITIONS),
             scrutin: {
@@ -426,13 +436,22 @@ export function registerVoteTools(server: McpServer): void {
       return {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
-          global: data.global,
+          global: {
+            ...data.global,
+            participationStatus: knownEnumCode(
+              data.global.participationStatus,
+              PARTICIPATION_PUBLICATION_STATUSES,
+            ),
+          },
           parties: data.parties.map((party) => ({
             shortName: party.partyShortName,
             name: party.partyName,
             cohesionRate: party.cohesionRate,
             participationRate: party.participationRate,
-            participationStatus: party.participationStatus ?? null,
+            participationStatus: knownEnumCode(
+              party.participationStatus,
+              PARTICIPATION_PUBLICATION_STATUSES,
+            ),
             totalVotes: party.totalVotes,
           })),
           divisiveScrutins: data.divisiveScrutins

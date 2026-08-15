@@ -5,7 +5,9 @@ import {
   canPublishStartDate,
   isPublishedNumber,
   knownEnumCode,
+  PARTICIPATION_PUBLICATION_STATUSES,
   participationLine,
+  START_DATE_PUBLICATION_STATUSES,
   quoteData,
 } from "../editorial.js";
 import { candidacyLine } from "../tools/elections.js";
@@ -49,6 +51,25 @@ test("known structured enum codes are preserved while unknown codes fail closed"
   assert.equal(knownEnumCode("FUTURE_RESULT", allowed), null);
   assert.equal(knownEnumCode(null, allowed), null);
   assert.equal(knownEnumCode(undefined, allowed), null);
+});
+
+test("publication metadata enums fail closed when upstream adds a new code", () => {
+  assert.equal(
+    knownEnumCode("AVAILABLE", PARTICIPATION_PUBLICATION_STATUSES),
+    "AVAILABLE",
+  );
+  assert.equal(
+    knownEnumCode("FUTURE_STATUS", PARTICIPATION_PUBLICATION_STATUSES),
+    null,
+  );
+  assert.equal(
+    knownEnumCode("UNVERIFIED", START_DATE_PUBLICATION_STATUSES),
+    "UNVERIFIED",
+  );
+  assert.equal(
+    knownEnumCode("FUTURE_STATUS", START_DATE_PUBLICATION_STATUSES),
+    null,
+  );
 });
 
 test("missing affair semantics fails safe without exposing an internal code", () => {

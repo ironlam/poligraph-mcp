@@ -261,13 +261,13 @@ export function registerFactCheckTools(server: McpServer): void {
           totalPages: data.pagination.totalPages,
           items: data.data.map((factCheck) => ({
             title: factCheck.title,
-            claimText: factCheck.claimText,
+            claimText: quoteData(factCheck.claimText),
             claimant: factCheck.claimant,
             verdictRating: knownEnumCode(
               factCheck.verdictRating,
               FACTCHECK_RATINGS,
             ),
-            verdict: factCheck.verdict,
+            verdict: quoteData(factCheck.verdict),
             source: factCheck.source,
             sourceUrl: factCheck.sourceUrl,
             publishedAt: factCheck.publishedAt,
@@ -358,13 +358,13 @@ export function registerFactCheckTools(server: McpServer): void {
           total: data.total,
           factchecks: data.factchecks.map((factCheck) => ({
             title: factCheck.title,
-            claimText: factCheck.claimText,
+            claimText: quoteData(factCheck.claimText),
             claimant: factCheck.claimant,
             verdictRating: knownEnumCode(
               factCheck.verdictRating,
               FACTCHECK_RATINGS,
             ),
-            verdict: factCheck.verdict,
+            verdict: quoteData(factCheck.verdict),
             source: factCheck.source,
             sourceUrl: factCheck.sourceUrl,
             publishedAt: factCheck.publishedAt,
