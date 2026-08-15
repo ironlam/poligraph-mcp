@@ -73,7 +73,7 @@ test("fetchAPI rejects cross-origin absolute paths before calling fetch", async 
   assert.equal(called, false);
 });
 
-test("fetchAPI rejects same-origin paths outside the public API", async () => {
+test("fetchAPI enforces the same-origin public /api/ path boundary", async () => {
   let called = false;
   globalThis.fetch = async () => {
     called = true;
