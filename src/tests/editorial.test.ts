@@ -4,6 +4,7 @@ import {
   affairSemanticsLines,
   canPublishStartDate,
   isPublishedNumber,
+  knownEnumCode,
   participationLine,
   quoteData,
 } from "../editorial.js";
@@ -40,6 +41,14 @@ test("published numeric counters distinguish zero from unavailable values", () =
   assert.equal(isPublishedNumber(null), false);
   assert.equal(isPublishedNumber(0), true);
   assert.equal(isPublishedNumber(4), true);
+});
+
+test("known structured enum codes are preserved while unknown codes fail closed", () => {
+  const allowed = ["ADOPTED", "REJECTED"] as const;
+  assert.equal(knownEnumCode("ADOPTED", allowed), "ADOPTED");
+  assert.equal(knownEnumCode("FUTURE_RESULT", allowed), null);
+  assert.equal(knownEnumCode(null, allowed), null);
+  assert.equal(knownEnumCode(undefined, allowed), null);
 });
 
 test("missing affair semantics fails safe without exposing an internal code", () => {
