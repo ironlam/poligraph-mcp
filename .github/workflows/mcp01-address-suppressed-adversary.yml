@@ -24,71 +24,39 @@ jobs:
         run: |
           from pathlib import Path
 
-          affairs = Path("src/tools/affairs.ts")
-          text = affairs.read_text(encoding="utf-8")
-          old = '''  const knownValues = affairs
-              .map((affair) => affair[field])
-              .filter((value): value is string => typeof value === "string");
+          def replace_once(path: Path, old: str, new: str, label: str) -> None:
+              text = path.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"Expected exactly one {label}; found {count}")
+              path.write_text(text.replace(old, new, 1), encoding="utf-8")
 
-            if (knownValues.some((value) => value !== expected)) {
-              throw new ApiError(
-                502,
-                `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,
-              );
-            }'''
-          new = '''  const knownValues = affairs
-              .map((affair) => affair[field])
-              .filter((value): value is string => typeof value === "string");
+          replace_once(
+              Path("src/tools/affairs.ts"),
+              "if (knownValues.some((value) => value !== expected)) {",
+              "if (\n    (affairs.length > 0 && knownValues.length !== affairs.length) ||\n    knownValues.some((value) => value !== expected)\n  ) {",
+              "affair filter guard",
+          )
 
-            if (
-              (affairs.length > 0 && knownValues.length !== affairs.length) ||
-              knownValues.some((value) => value !== expected)
-            ) {
-              throw new ApiError(
-                502,
-                `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,
-              );
-            }'''
-          if old not in text:
-              raise SystemExit("Expected assertFilterApplied block not found")
-          affairs.write_text(text.replace(old, new, 1), encoding="utf-8")
+          replace_once(
+              Path("src/tools/politicians.ts"),
+              "  type FieldPublicationStatus,\n  UNVERIFIED_DATE_NOTICE,",
+              "  type FieldPublicationStatus,\n  quoteData,\n  UNVERIFIED_DATE_NOTICE,",
+              "editorial import block",
+          )
+          replace_once(
+              Path("src/tools/politicians.ts"),
+              "lines.push(`## ${cluster.label} (${cluster.nodes.length})`);",
+              "lines.push(`## Relation (${cluster.nodes.length})`);\n        lines.push(quoteData(cluster.label));",
+              "cluster label renderer",
+          )
 
-          politicians = Path("src/tools/politicians.ts")
-          text = politicians.read_text(encoding="utf-8")
-          old_import = '''import {
-            canPublishStartDate,
-            type FieldPublicationStatus,
-            UNVERIFIED_DATE_NOTICE,
-          } from "../editorial.js";'''
-          new_import = '''import {
-            canPublishStartDate,
-            type FieldPublicationStatus,
-            quoteData,
-            UNVERIFIED_DATE_NOTICE,
-          } from "../editorial.js";'''
-          old_render = '''      for (const cluster of data.clusters) {
-                lines.push(`## ${cluster.label} (${cluster.nodes.length})`);
-                for (const node of cluster.nodes.slice(0, 15)) {'''
-          new_render = '''      for (const cluster of data.clusters) {
-                lines.push(`## Relation (${cluster.nodes.length})`);
-                lines.push(quoteData(cluster.label));
-                for (const node of cluster.nodes.slice(0, 15)) {'''
-          if old_import not in text or old_render not in text:
-              raise SystemExit("Expected politician relation rendering block not found")
-          text = text.replace(old_import, new_import, 1).replace(old_render, new_render, 1)
-          politicians.write_text(text, encoding="utf-8")
-
-          api = Path("src/api.ts")
-          text = api.read_text(encoding="utf-8")
-          old = '''  if (url.origin !== BASE_ORIGIN) {
-              throw new ApiError(400, "Chemin API Poligraph invalide");
-            }'''
-          new = '''  if (url.origin !== BASE_ORIGIN || !url.pathname.startsWith("/api/")) {
-              throw new ApiError(400, "Chemin API Poligraph invalide");
-            }'''
-          if old not in text:
-              raise SystemExit("Expected API origin guard not found")
-          api.write_text(text.replace(old, new, 1), encoding="utf-8")
+          replace_once(
+              Path("src/api.ts"),
+              "if (url.origin !== BASE_ORIGIN) {",
+              "if (url.origin !== BASE_ORIGIN || !url.pathname.startsWith(\"/api/\")) {",
+              "API path guard",
+          )
 
       - name: Remove temporary workflow
         run: rm .github/workflows/mcp01-address-suppressed-adversary.yml
