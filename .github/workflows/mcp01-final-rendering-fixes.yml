@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Apply exact rendering fixes
-        shell: python
+        shell: python {0}
         run: |
           from pathlib import Path
 
@@ -34,11 +34,15 @@ jobs:
 
           editorial = Path("src/editorial.ts")
           text = editorial.read_text(encoding="utf-8")
-          old = '''  lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);
-  lines.push(`_${semantics.statusDescription}_`);'''
-          new = '''  lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);
-  lines.push("_Description du statut, donnée Poligraph :_");
-  lines.push(quoteData(semantics.statusDescription));'''
+          old = "\n".join([
+              "  lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);",
+              "  lines.push(`_${semantics.statusDescription}_`);",
+          ])
+          new = "\n".join([
+              "  lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);",
+              '  lines.push("_Description du statut, donnée Poligraph :_");',
+              "  lines.push(quoteData(semantics.statusDescription));",
+          ])
           if old not in text:
               raise SystemExit("status description rendering block not found")
           editorial.write_text(text.replace(old, new, 1), encoding="utf-8")
