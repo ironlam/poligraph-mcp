@@ -1,0 +1,73 @@
+name: MCP-01 null-semantics fail-safe fixes
+
+on:
+  push:
+    branches:
+      - mcp-01/consume-public-contract
+    paths:
+      - .github/workflows/mcp01-null-semantics-failsafe.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mcp-01/consume-public-contract
+          fetch-depth: 0
+
+      - name: Apply exact fail-safe fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          affairs = Path("src/tools/affairs.ts")
+          text = affairs.read_text(encoding="utf-8")
+          old = "  semantics?: AffairSemantics;"
+          new = "  semantics?: AffairSemantics | null;"
+          if old not in text:
+            raise SystemExit("Affair semantics type not found")
+          text = text.replace(old, new, 1)
+          old = "  const semanticsAvailable = affair.semantics !== undefined;"
+          new = "  const semanticsAvailable = affair.semantics != null;"
+          if old not in text:
+            raise SystemExit("structuredAffair semantics guard not found")
+          affairs.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          editorial = Path("src/editorial.ts")
+          text = editorial.read_text(encoding="utf-8")
+          old = "  semantics: AffairSemantics | undefined,"
+          new = "  semantics: AffairSemantics | null | undefined,"
+          if old not in text:
+            raise SystemExit("affairSemanticsLines signature not found")
+          editorial.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          parties = Path("src/tools/parties.ts")
+          text = parties.read_text(encoding="utf-8")
+          old = '  return position ? labels[position] ?? "Non classé" : "Non classé";'
+          new = '  if (!position) return "Position non renseignée";\n  return labels[position] ?? "Classification non disponible";'
+          if old not in text:
+            raise SystemExit("formatPosition fallback not found")
+          parties.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/mcp01-null-semantics-failsafe.yml
+
+      - name: Verify patch
+        run: |
+          git diff --check
+          grep -F 'semantics?: AffairSemantics | null' src/tools/affairs.ts
+          grep -F 'affair.semantics != null' src/tools/affairs.ts
+          grep -F 'AffairSemantics | null | undefined' src/editorial.ts
+          grep -F 'Classification non disponible' src/tools/parties.ts
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src .github/workflows/mcp01-null-semantics-failsafe.yml
+          git commit -m "fix: fail safe on null affair semantics"
+          git push origin HEAD:mcp-01/consume-public-contract
