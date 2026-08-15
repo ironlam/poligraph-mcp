@@ -73,6 +73,25 @@ test("fetchAPI rejects cross-origin absolute paths before calling fetch", async 
   assert.equal(called, false);
 });
 
+test("fetchAPI rejects same-origin paths outside the public API", async () => {
+  let called = false;
+  globalThis.fetch = async () => {
+    called = true;
+    return new Response("{}", { status: 200 });
+  };
+
+  await assert.rejects(
+    () => fetchAPI("/robots.txt"),
+    (error: unknown) => {
+      assert.ok(error instanceof ApiError);
+      assert.equal(error.status, 400);
+      assert.match(error.message, /Chemin API Poligraph invalide/);
+      return true;
+    },
+  );
+  assert.equal(called, false);
+});
+
 test("fetchAPI disables redirects", async () => {
   globalThis.fetch = async (_input, init) => {
     assert.equal(init?.redirect, "error");
