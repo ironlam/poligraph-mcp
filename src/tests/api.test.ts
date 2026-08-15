@@ -152,3 +152,25 @@ test("fetchAPI sanitizes timeouts raised while streaming the response body", asy
     },
   );
 });
+
+test("fetchAPI sanitizes non-timeout failures raised while streaming the response body", async () => {
+  globalThis.fetch = async () => {
+    const body = new ReadableStream<Uint8Array>({
+      pull() {
+        throw new Error("private upstream stream diagnostics");
+      },
+    });
+    return new Response(body, { status: 200 });
+  };
+
+  await assert.rejects(
+    () => fetchAPI("/api/test"),
+    (error: unknown) => {
+      assert.ok(error instanceof ApiError);
+      assert.equal(error.status, 502);
+      assert.equal(error.message, "API publique Poligraph indisponible");
+      assert.doesNotMatch(error.message, /private upstream stream diagnostics/);
+      return true;
+    },
+  );
+});
