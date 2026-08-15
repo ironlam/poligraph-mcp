@@ -473,7 +473,7 @@ export function registerPoliticianTools(server: McpServer): void {
           affairsVictimOrPlaintiffCount:
             data.affairsVictimOrPlaintiffCount ?? null,
           favorableOutcomeCount: data.favorableOutcomeCount ?? null,
-          factchecksCount: data.factchecksCount ?? 0,
+          factchecksCount: data.factchecksCount ?? null,
           url: `https://poligraph.fr/politiques/${data.slug}`,
         },
       };

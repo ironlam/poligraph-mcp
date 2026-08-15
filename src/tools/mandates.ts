@@ -87,6 +87,9 @@ export function registerMandateTools(server: McpServer): void {
         limit,
       });
 
+      // A 2xx response has already been received. Invalid client values belong
+      // to the public API's 4xx validation; a mismatched successful payload is
+      // an upstream contract violation and intentionally maps to 502.
       if (type && data.data.some((mandate) => mandate.type !== type)) {
         throw new ApiError(
           502,

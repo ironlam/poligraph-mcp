@@ -88,6 +88,10 @@ function assertFilterApplied(
     .map((affair) => affair[field])
     .filter((value): value is string => typeof value === "string");
 
+  // fetchAPI has already accepted a 2xx response here. Invalid client filter
+  // values must be rejected by the public API as 4xx; a successful response
+  // that omits or changes the requested filter is therefore an upstream
+  // contract violation and intentionally maps to 502.
   if (
     (affairs.length > 0 && knownValues.length !== affairs.length) ||
     knownValues.some((value) => value !== expected)
@@ -179,6 +183,7 @@ function structuredAffair(affair: AffairItem) {
     startDate: affair.startDate,
     verdictDate: statusAppliesToPolitician ? affair.verdictDate : null,
     sentence: statusAppliesToPolitician ? affair.sentence : null,
+    appeal: statusAppliesToPolitician ? affair.appeal : null,
     sources: affair.sources.map((source) => ({
       url: source.url,
       title: source.title,
