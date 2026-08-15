@@ -1,7 +1,7 @@
 const BASE_URL = "https://poligraph.fr";
+const BASE_ORIGIN = new URL(BASE_URL).origin;
 const REQUEST_TIMEOUT_MS = 10_000;
 const MAX_RESPONSE_BYTES = 2_000_000;
-const MAX_ERROR_MESSAGE_LENGTH = 300;
 
 /**
  * Format an ISO date string to a readable French date (ex: "21 décembre 1977").
@@ -65,23 +65,10 @@ async function readBoundedBody(response: Response): Promise<string> {
   return new TextDecoder().decode(body);
 }
 
-function safeUpstreamError(status: number, body: string): ApiError {
-  let message = "Erreur de l'API publique Poligraph";
-
-  try {
-    const parsed = JSON.parse(body) as { error?: unknown };
-    if (typeof parsed.error === "string" && parsed.error.trim()) {
-      message = parsed.error.trim();
-    }
-  } catch {
-    // Do not echo arbitrary HTML/proxy bodies to the model.
-  }
-
-  if (message.length > MAX_ERROR_MESSAGE_LENGTH) {
-    message = `${message.slice(0, MAX_ERROR_MESSAGE_LENGTH)}…`;
-  }
-
-  return new ApiError(status, `API ${status}: ${message}`);
+function safeUpstreamError(status: number): ApiError {
+  // Upstream error bodies are untrusted data. Never reflect them into a model-visible
+  // error message, even when they contain JSON with an `error` field.
+  return new ApiError(status, `API ${status}: Erreur de l'API publique Poligraph`);
 }
 
 export async function fetchAPI<T>(
@@ -89,6 +76,10 @@ export async function fetchAPI<T>(
   params?: Record<string, string | number | boolean | undefined>,
 ): Promise<T> {
   const url = new URL(path, BASE_URL);
+
+  if (url.origin !== BASE_ORIGIN) {
+    throw new ApiError(400, "Chemin API Poligraph invalide");
+  }
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -105,6 +96,7 @@ export async function fetchAPI<T>(
         Accept: "application/json",
         "User-Agent": "poligraph-mcp/2.0",
       },
+      redirect: "error",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (error) {
@@ -117,7 +109,7 @@ export async function fetchAPI<T>(
   const body = await readBoundedBody(response);
 
   if (!response.ok) {
-    throw safeUpstreamError(response.status, body);
+    throw safeUpstreamError(response.status);
   }
 
   try {
