@@ -77,7 +77,7 @@ export async function fetchAPI<T>(
 ): Promise<T> {
   const url = new URL(path, BASE_URL);
 
-  if (url.origin !== BASE_ORIGIN) {
+  if (url.origin !== BASE_ORIGIN || !url.pathname.startsWith("/api/")) {
     throw new ApiError(400, "Chemin API Poligraph invalide");
   }
 

@@ -88,7 +88,10 @@ function assertFilterApplied(
     .map((affair) => affair[field])
     .filter((value): value is string => typeof value === "string");
 
-  if (knownValues.some((value) => value !== expected)) {
+  if (
+    (affairs.length > 0 && knownValues.length !== affairs.length) ||
+    knownValues.some((value) => value !== expected)
+  ) {
     throw new ApiError(
       502,
       `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,

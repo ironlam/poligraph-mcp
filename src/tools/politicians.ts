@@ -4,6 +4,7 @@ import { fetchAPI, formatDate } from "../api.js";
 import {
   canPublishStartDate,
   type FieldPublicationStatus,
+  quoteData,
   UNVERIFIED_DATE_NOTICE,
 } from "../editorial.js";
 
@@ -368,7 +369,8 @@ export function registerPoliticianTools(server: McpServer): void {
       > = {};
 
       for (const cluster of data.clusters) {
-        lines.push(`## ${cluster.label} (${cluster.nodes.length})`);
+        lines.push(`## Relation (${cluster.nodes.length})`);
+        lines.push(quoteData(cluster.label));
         for (const node of cluster.nodes.slice(0, 15)) {
           const nodeParty = node.party ? ` (${node.party.shortName})` : "";
           lines.push(`- **${node.fullName}**${nodeParty}`);
