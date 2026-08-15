@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   affairSemanticsLines,
   canPublishStartDate,
+  isPublishedNumber,
   participationLine,
   quoteData,
 } from "../editorial.js";
@@ -32,6 +33,13 @@ test("missing mandate publication status is unknown, never AVAILABLE", () => {
   assert.equal(canPublishStartDate(undefined), false);
   assert.equal(canPublishStartDate("UNVERIFIED"), false);
   assert.equal(canPublishStartDate("AVAILABLE"), true);
+});
+
+test("published numeric counters distinguish zero from unavailable values", () => {
+  assert.equal(isPublishedNumber(undefined), false);
+  assert.equal(isPublishedNumber(null), false);
+  assert.equal(isPublishedNumber(0), true);
+  assert.equal(isPublishedNumber(4), true);
 });
 
 test("missing affair semantics fails safe without exposing an internal code", () => {
