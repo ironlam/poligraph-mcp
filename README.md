@@ -1,14 +1,14 @@
 # Poligraph MCP Server
 
-Serveur [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) qui expose les données de [Poligraph](https://poligraph.fr/) comme tools pour Claude, ChatGPT et tout client MCP compatible.
+Serveur [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) qui expose les données publiques de [Poligraph](https://poligraph.fr/) comme tools pour les clients MCP compatibles.
 
-Permet aux journalistes, chercheurs et citoyens de requêter les données politiques françaises en langage naturel.
+Permet aux journalistes, chercheurs et citoyens d'interroger des données documentées sur la vie politique française en langage naturel.
 
 ## Utilisation rapide
 
-### Serveur distant (aucune installation)
+### Serveur distant
 
-Le serveur est déployé sur Vercel et accessible directement :
+Le serveur HTTP Streamable est déployé à l'adresse :
 
 ```
 https://poligraph-mcp.vercel.app/mcp
@@ -16,7 +16,7 @@ https://poligraph-mcp.vercel.app/mcp
 
 #### Claude Desktop
 
-Ajoutez dans votre fichier `claude_desktop_config.json` :
+Ajoutez dans votre configuration MCP :
 
 ```json
 {
@@ -35,26 +35,15 @@ Ajoutez dans votre fichier `claude_desktop_config.json` :
 claude mcp add poligraph --transport http https://poligraph-mcp.vercel.app/mcp
 ```
 
-#### ChatGPT Apps
+#### ChatGPT
 
-Le serveur est compatible avec [ChatGPT Apps](https://platform.openai.com/docs/actions/mcp-servers) via le protocole MCP.
+La distribution ChatGPT est traitée séparément dans le lot MCP-04 afin de suivre le mécanisme OpenAI en vigueur au moment de la publication. Ce README ne documente volontairement plus l'ancienne procédure « Actions ».
 
-**Créer un connector ChatGPT :**
+Le serveur expose déjà les métadonnées MCP utiles aux clients compatibles :
 
-1. Allez sur [platform.openai.com](https://platform.openai.com/) > **Actions** > **Create new action**
-2. Sélectionnez **MCP Server** comme type de connector
-3. Entrez l'URL du serveur :
-   ```
-   https://poligraph-mcp.vercel.app/mcp
-   ```
-4. Les 18 tools seront automatiquement détectés
-5. Publiez l'action dans votre GPT ou App
-
-**Fonctionnalités ChatGPT :**
-
-- `annotations` : tous les tools sont marqués `readOnlyHint: true` (lecture seule)
-- `_meta` OpenAI : messages de statut pendant l'invocation (ex: "Recherche de politiciens...")
-- `structuredContent` : données JSON structurées en plus du texte markdown
+- `annotations` avec `readOnlyHint: true` sur tous les tools ;
+- `_meta` pour les états d'invocation ;
+- `structuredContent` en complément du rendu textuel.
 
 ### Installation locale (stdio)
 
@@ -65,7 +54,7 @@ npm install
 npm run build
 ```
 
-Ajoutez dans la configuration de votre client MCP :
+Puis configurez votre client MCP pour exécuter :
 
 ```json
 {
@@ -78,85 +67,81 @@ Ajoutez dans la configuration de votre client MCP :
 }
 ```
 
-**Emplacement du fichier de config Claude Desktop :**
-
-- macOS : `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows : `%APPDATA%\Claude\claude_desktop_config.json`
-- Linux : `~/.config/Claude/claude_desktop_config.json`
-
-## Tools disponibles (18)
+## Tools disponibles (19)
 
 ### Politiciens
 
-| Tool                       | Description                                                    |
-| -------------------------- | -------------------------------------------------------------- |
-| `search_politicians`       | Rechercher des politiciens par nom, parti ou type de mandat    |
-| `get_politician`           | Fiche complète : mandats, déclarations de patrimoine, affaires |
-| `get_politician_relations` | Relations : même parti, gouvernement, législature, département |
+| Tool | Description |
+| --- | --- |
+| `search_politicians` | Rechercher des personnalités publiées par nom, parti ou mandat |
+| `get_politician` | Fiche publique : mandats, déclarations, fact-checks et compteurs judiciaires séparés par rôle |
+| `get_politician_relations` | Relations publiques documentées par Poligraph |
 
 ### Affaires judiciaires
 
-| Tool                     | Description                                                     |
-| ------------------------ | --------------------------------------------------------------- |
-| `list_affairs`           | Liste des affaires judiciaires avec filtres (statut, catégorie) |
-| `get_politician_affairs` | Affaires judiciaires d'un politicien avec sources et détails    |
+| Tool | Description |
+| --- | --- |
+| `list_affairs` | Affaires publiées avec filtres, rôle, sources et sémantique éditoriale canonique |
+| `get_politician_affairs` | Affaires publiées d'une personnalité avec filtre de rôle |
 
 ### Votes parlementaires
 
-| Tool                   | Description                                                  |
-| ---------------------- | ------------------------------------------------------------ |
-| `list_votes`           | Scrutins parlementaires (Assemblée nationale et Sénat)       |
-| `get_politician_votes` | Votes d'un parlementaire avec statistiques de participation  |
-| `get_vote_stats`       | Statistiques de vote par parti : cohésion, scrutins divisifs |
+| Tool | Description |
+| --- | --- |
+| `list_votes` | Scrutins parlementaires |
+| `get_politician_votes` | Votes enregistrés et statistiques publiables d'un parlementaire |
+| `get_vote_stats` | Cohésion, scrutins divisifs et statistiques globales |
 
 ### Mandats
 
-| Tool            | Description                                                            |
-| --------------- | ---------------------------------------------------------------------- |
-| `list_mandates` | Liste des mandats politiques (type, institution, statut actif/terminé) |
+| Tool | Description |
+| --- | --- |
+| `list_mandates` | Mandats publics ; les dates non vérifiées ne sont pas présentées comme ancienneté |
 
 ### Partis politiques
 
-| Tool           | Description                                                    |
-| -------------- | -------------------------------------------------------------- |
-| `list_parties` | Liste des partis avec filtres (position, statut actif/dissous) |
-| `get_party`    | Fiche complète : membres, filiation, position politique        |
+| Tool | Description |
+| --- | --- |
+| `list_parties` | Liste des partis avec filtres |
+| `get_party` | Fiche publique : membres, filiation et classification documentée |
 
 ### Fact-checks
 
-| Tool                        | Description                                      |
-| --------------------------- | ------------------------------------------------ |
-| `list_factchecks`           | Fact-checks (AFP Factuel, Les Décodeurs, etc.)   |
-| `get_politician_factchecks` | Fact-checks mentionnant un politicien spécifique |
+| Tool | Description |
+| --- | --- |
+| `list_factchecks` | Fact-checks publics issus des sources autorisées |
+| `get_politician_factchecks` | Fact-checks publics mentionnant une personnalité |
+| `get_factcheck_stats` | Statistiques agrégées du corpus public de fact-checks |
 
-### Elections
+### Élections
 
-| Tool             | Description                                             |
-| ---------------- | ------------------------------------------------------- |
-| `list_elections` | Elections françaises avec filtres (type, statut, année) |
-| `get_election`   | Détail : candidatures, résultats, participation         |
+| Tool | Description |
+| --- | --- |
+| `list_elections` | Élections françaises avec filtres |
+| `get_election` | Candidatures, résultats et participation sans convertir les valeurs inconnues en faux |
 
 ### Géographie
 
-| Tool                         | Description                                                      |
-| ---------------------------- | ---------------------------------------------------------------- |
-| `get_department_stats`       | Statistiques par département : élus, parti dominant, répartition |
-| `get_deputies_by_department` | Députés en exercice dans un département donné                    |
+| Tool | Description |
+| --- | --- |
+| `get_department_stats` | Statistiques sur les élus publiés par département |
+| `get_deputies_by_department` | Députés publiés en exercice dans un département |
 
 ### Recherche
 
-| Tool              | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| `search_advanced` | Recherche avancée avec filtres combinés (département, statut, etc.) |
+| Tool | Description |
+| --- | --- |
+| `search_advanced` | Recherche combinée sur le corpus public |
 
 ## Architecture
 
-```
+```text
 src/
-├── index.ts          # Point d'entrée CLI (transport stdio)
-├── server.ts         # Factory MCP server & enregistrement des tools
-├── http.ts           # Serveur Express (transport HTTP Streamable)
-├── api.ts            # Client API (https://poligraph.fr)
+├── index.ts
+├── server.ts
+├── http.ts
+├── api.ts                # client API borné : timeout, taille, erreurs
+├── editorial.ts          # règles de rendu fail-safe du contrat public
 ├── tools/
 │   ├── politicians.ts
 │   ├── affairs.ts
@@ -168,54 +153,55 @@ src/
 │   ├── mandates.ts
 │   └── departments.ts
 └── tests/
+    ├── editorial.test.ts
     └── api-contract.test.ts
 api/
-└── mcp.ts            # Handler Vercel (serverless)
+└── mcp.ts
 ```
 
 **Transports supportés :**
 
-- **stdio** — Claude Desktop / Claude Code en local
-- **HTTP Streamable** — serveur Express ou Vercel, compatible ChatGPT Actions
+- **stdio** pour un client local ;
+- **HTTP Streamable** pour le serveur Express ou Vercel.
 
 ## Développement
 
 ```bash
-npm run dev          # Compilation en mode watch
-npm run build        # Build production
-npm run start:http   # Serveur HTTP local (port 3001)
-npm run inspect      # Tester interactivement avec MCP Inspector
-npm run test:build   # Build + tests de contrat API
+npm run dev
+npm run build
+npm run start:http
+npm run inspect
+npm run test:unit
+npm run test:contract
+npm run test:build
 ```
 
-## Source des données
+`test:unit` vérifie les invariants éditoriaux déterministes. `test:contract` effectue le smoke test contre l'API publique déployée.
 
-Toutes les données proviennent de sources officielles :
+## Contrat éditorial public
 
-- [Assemblée nationale](https://data.assemblee-nationale.fr/)
-- [Sénat](https://data.senat.fr/)
-- [HATVP](https://www.hatvp.fr/)
-- [Wikidata](https://www.wikidata.org/)
+Le MCP ne se connecte pas directement à la base de données et n'utilise ni service key ni endpoint d'administration. Il consomme exclusivement l'API publique Poligraph.
 
-Voir [poligraph.fr/sources](https://poligraph.fr/sources) pour la liste complète.
+Pour les affaires judiciaires :
 
-### Périmètre des affaires judiciaires
+- seules les données publiées par le contrat public sont consommées ;
+- le rôle (`DIRECT`, mention, victime, plaignant…) est distinct du statut de la procédure ;
+- les libellés de statut, catégorie, prudence, certitude et maturité sont fournis par le contrat canonique Poligraph ;
+- si cette sémantique canonique est absente, le MCP n'affiche pas le code interne comme signification éditoriale ;
+- le total legacy `affairsCount`, qui mélange tous les rôles publiés, reste disponible uniquement pour compatibilité structurée et n'est pas présenté comme indicateur à charge ;
+- les compteurs par rôle font foi pour la présentation.
 
-Les outils `list_affairs`, `get_politician_affairs` et les compteurs `affairsCount`
-n'exposent que les affaires **publiées après validation éditoriale humaine** sur
-poligraph.fr. Les brouillons, affaires archivées, exclues ou rejetées ne sont
-jamais retournés, ni directement ni via les agrégats. Le serveur MCP consomme
-exclusivement l'API publique : il hérite de ses filtres et n'y ajoute aucune
-donnée.
+Pour les données incomplètes :
 
-Le compteur `affairsCount` recense toutes les implications publiées (mis en cause, mentionné, victime, plaignant) ; la liste `get_politician_affairs` filtre par défaut sur les mises en cause directes (`involvement=DIRECT`).
+- `null` ou champ absent ne signifie jamais `0` ou `false` ;
+- un taux de participation n'est rendu que si son état de publication est explicitement `AVAILABLE` ;
+- une date de prise de fonction n'est utilisée comme ancienneté que si le contrat la marque explicitement `AVAILABLE`.
 
-Outre `affairsCount` (legacy, tous rôles confondus), la fiche politicien expose
-des compteurs par rôle : `adverseAffairsCount` (mis en cause, procédures
-validées par un juge), `affairsMentionedCount` (simple mention),
-`affairsVictimOrPlaintiffCount` (victime ou plaignant) et `favorableOutcomeCount`
-(issues closes sans condamnation : relaxe, acquittement, non-lieu, classement,
-prescription).
+Les champs textuels issus des sources publiques sont traités comme des **données**, jamais comme des instructions adressées au modèle.
+
+## Sources
+
+Poligraph agrège des sources publiques, institutionnelles et éditoriales documentées, notamment l'Assemblée nationale, le Sénat, la HATVP, Wikidata et des organismes de fact-checking. Voir [poligraph.fr/sources](https://poligraph.fr/sources) pour le détail.
 
 ## Licence
 
