@@ -38,7 +38,7 @@ export function quoteData(text: string): string {
 }
 
 export function affairSemanticsLines(
-  semantics: AffairSemantics | undefined,
+  semantics: AffairSemantics | null | undefined,
 ): string[] {
   if (!semantics) {
     return [`**Rôle et statut** : ${CONTRACT_SEMANTICS_UNAVAILABLE}`];

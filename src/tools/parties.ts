@@ -80,7 +80,8 @@ function formatPosition(position: string | null): string {
     RIGHT: "Droite",
     FAR_RIGHT: "Extrême droite",
   };
-  return position ? labels[position] ?? "Non classé" : "Non classé";
+  if (!position) return "Position non renseignée";
+  return labels[position] ?? "Classification non disponible";
 }
 
 export function registerPartyTools(server: McpServer): void {

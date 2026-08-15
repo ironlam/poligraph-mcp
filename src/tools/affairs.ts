@@ -24,7 +24,7 @@ interface AffairItem {
   status: string;
   category: string;
   involvement?: string;
-  semantics?: AffairSemantics;
+  semantics?: AffairSemantics | null;
   factsDate: string | null;
   startDate: string;
   verdictDate: string | null;
@@ -163,7 +163,7 @@ function formatAffairDetail(
 }
 
 function structuredAffair(affair: AffairItem) {
-  const semanticsAvailable = affair.semantics !== undefined;
+  const semanticsAvailable = affair.semantics != null;
   const statusAppliesToPolitician =
     affair.semantics?.statusAppliesToPolitician === true;
 
