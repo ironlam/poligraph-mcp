@@ -36,11 +36,29 @@ jobs:
                   raise SystemExit(f"{path}: expected {count} matches, found {actual} for {old[:100]!r}")
               p.write_text(text.replace(old, new), encoding="utf-8")
 
-          replace(
-              "src/editorial.ts",
-              '''export function participationLine(\n  value: ParticipationPublication,\n): string {\n  if (\n    value.participationStatus === "AVAILABLE" &&\n    value.participationRate !== null &&\n    Number.isFinite(value.participationRate)\n  ) {\n    return `**Taux de participation** : ${value.participationRate}%`;\n  }\n\n  return "**Taux de participation** : non publié avec les données actuellement disponibles";\n}\n''',
-              '''export function publishedParticipationRate(\n  value: ParticipationPublication,\n): number | null {\n  return value.participationStatus === "AVAILABLE" &&\n    value.participationRate !== null &&\n    Number.isFinite(value.participationRate)\n    ? value.participationRate\n    : null;\n}\n\nexport function participationLine(\n  value: ParticipationPublication,\n): string {\n  const rate = publishedParticipationRate(value);\n  if (rate !== null) {\n    return `**Taux de participation** : ${rate}%`;\n  }\n\n  return "**Taux de participation** : non publié avec les données actuellement disponibles";\n}\n''',
-          )
+          p = Path("src/editorial.ts")
+          text = p.read_text()
+          start = text.index("export function participationLine(")
+          end = text.index("\n\nexport function isPublishedNumber", start)
+          replacement = '''export function publishedParticipationRate(
+            value: ParticipationPublication,
+          ): number | null {
+            return value.participationStatus === "AVAILABLE" &&
+              value.participationRate !== null &&
+              Number.isFinite(value.participationRate)
+              ? value.participationRate
+              : null;
+          }
+
+          export function participationLine(value: ParticipationPublication): string {
+            const rate = publishedParticipationRate(value);
+            if (rate !== null) {
+              return `**Taux de participation** : ${rate}%`;
+            }
+
+            return "**Taux de participation** : non publié avec les données actuellement disponibles";
+          }'''
+          p.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
 
           replace(
               "src/tools/votes.ts",
