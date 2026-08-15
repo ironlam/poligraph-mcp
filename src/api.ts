@@ -36,6 +36,34 @@ function isTimeoutError(error: unknown): boolean {
   return error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
 }
 
+function isSafeApiPath(pathname: string): boolean {
+  let candidate = pathname;
+
+  // URL normalizes canonical dot segments already. Re-decode a bounded number
+  // of times to reject double-encoded traversal/separator variants before the
+  // request reaches any server/router that may decode them again.
+  for (let i = 0; i < 3; i += 1) {
+    if (!candidate.startsWith("/api/") || candidate.includes("\\")) return false;
+
+    const segments = candidate.split("/");
+    if (segments.some((segment) => segment === "." || segment === "..")) return false;
+
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(candidate);
+    } catch {
+      return false;
+    }
+
+    if (decoded === candidate) return true;
+    candidate = decoded;
+  }
+
+  // Still changing after repeated decoding means the path is intentionally
+  // over-encoded; fail closed rather than relying on downstream normalization.
+  return false;
+}
+
 async function readBoundedBody(response: Response): Promise<string> {
   if (!response.body) return "";
 
@@ -91,7 +119,7 @@ export async function fetchAPI<T>(
 ): Promise<T> {
   const url = new URL(path, BASE_URL);
 
-  if (url.origin !== BASE_ORIGIN || !url.pathname.startsWith("/api/")) {
+  if (url.origin !== BASE_ORIGIN || !isSafeApiPath(url.pathname)) {
     throw new ApiError(400, "Chemin API Poligraph invalide");
   }
 
