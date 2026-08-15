@@ -449,7 +449,9 @@ export function registerPoliticianTools(server: McpServer): void {
             title: mandate.title,
             institution: mandate.institution,
             constituency: mandate.constituency,
-            startDate: mandate.startDate,
+            startDate: canPublishStartDate(mandate.startDatePublicationStatus)
+              ? mandate.startDate
+              : null,
             startDatePublicationStatus:
               mandate.startDatePublicationStatus ?? null,
             endDate: mandate.endDate,
