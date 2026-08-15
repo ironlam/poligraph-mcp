@@ -1,0 +1,109 @@
+name: MCP-01 role-count null fail-safe
+
+on:
+  push:
+    branches:
+      - mcp-01/consume-public-contract
+    paths:
+      - .github/workflows/mcp01-role-count-null-failsafe.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mcp-01/consume-public-contract
+          fetch-depth: 0
+
+      - name: Apply null-safe count rendering
+        shell: python {0}
+        run: |
+          from pathlib import Path
+
+          editorial = Path("src/editorial.ts")
+          text = editorial.read_text(encoding="utf-8")
+          marker = "export function canPublishStartDate(status: FieldPublicationStatus | undefined): boolean {"
+          if marker not in text:
+              raise SystemExit("editorial publication helper marker not found")
+          helper = "\n".join([
+              "export function isPublishedNumber(value: unknown): value is number {",
+              '  return typeof value === "number";',
+              "}",
+              "",
+          ])
+          if "export function isPublishedNumber" not in text:
+              text = text.replace(marker, helper + marker, 1)
+          editorial.write_text(text, encoding="utf-8")
+
+          politicians = Path("src/tools/politicians.ts")
+          text = politicians.read_text(encoding="utf-8")
+          old_import = "\n".join([
+              "  canPublishStartDate,",
+              "  type FieldPublicationStatus,",
+              "  quoteData,",
+          ])
+          new_import = "\n".join([
+              "  canPublishStartDate,",
+              "  type FieldPublicationStatus,",
+              "  isPublishedNumber,",
+              "  quoteData,",
+          ])
+          if old_import not in text:
+              raise SystemExit("politician editorial import block not found")
+          text = text.replace(old_import, new_import, 1)
+
+          for field in [
+              "adverseAffairsCount",
+              "affairsMentionedCount",
+              "affairsVictimOrPlaintiffCount",
+              "favorableOutcomeCount",
+          ]:
+              old = f"  {field}?: number;"
+              new = f"  {field}?: number | null;"
+              if old not in text:
+                  raise SystemExit(f"count type not found: {field}")
+              text = text.replace(old, new, 1)
+
+          old = "].some((count) => count !== undefined);"
+          new = "].some(isPublishedNumber);"
+          if old not in text:
+              raise SystemExit("role-aware count availability predicate not found")
+          text = text.replace(old, new, 1)
+
+          for field in [
+              "adverseAffairsCount",
+              "favorableOutcomeCount",
+              "affairsMentionedCount",
+              "affairsVictimOrPlaintiffCount",
+          ]:
+              old = f"if (politician.{field} !== undefined) {{"
+              new = f"if (isPublishedNumber(politician.{field})) {{"
+              if old not in text:
+                  raise SystemExit(f"count render predicate not found: {field}")
+              text = text.replace(old, new, 1)
+
+          politicians.write_text(text, encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/mcp01-role-count-null-failsafe.yml
+
+      - name: Verify patch
+        run: |
+          git diff --check
+          grep -F 'export function isPublishedNumber' src/editorial.ts
+          grep -F '].some(isPublishedNumber);' src/tools/politicians.ts
+          grep -F 'adverseAffairsCount?: number | null;' src/tools/politicians.ts
+          grep -F 'if (isPublishedNumber(politician.adverseAffairsCount))' src/tools/politicians.ts
+          if grep -F 'adverseAffairsCount !== undefined' src/tools/politicians.ts; then exit 1; fi
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/editorial.ts src/tools/politicians.ts .github/workflows/mcp01-role-count-null-failsafe.yml
+          git commit -m "fix: suppress unavailable judicial role counts"
+          git push origin HEAD:mcp-01/consume-public-contract
