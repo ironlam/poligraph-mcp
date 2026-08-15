@@ -130,3 +130,25 @@ test("fetchAPI rejects oversized upstream responses", async () => {
     },
   );
 });
+
+test("fetchAPI sanitizes timeouts raised while streaming the response body", async () => {
+  globalThis.fetch = async () => {
+    const body = new ReadableStream<Uint8Array>({
+      pull() {
+        throw new DOMException("private streaming timeout diagnostics", "TimeoutError");
+      },
+    });
+    return new Response(body, { status: 200 });
+  };
+
+  await assert.rejects(
+    () => fetchAPI("/api/test"),
+    (error: unknown) => {
+      assert.ok(error instanceof ApiError);
+      assert.equal(error.status, 504);
+      assert.equal(error.message, "Délai dépassé pour l'API publique Poligraph");
+      assert.doesNotMatch(error.message, /private streaming timeout diagnostics/);
+      return true;
+    },
+  );
+});
