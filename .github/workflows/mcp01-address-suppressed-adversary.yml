@@ -1,0 +1,107 @@
+name: MCP-01 address suppressed adversary findings
+
+on:
+  push:
+    branches:
+      - mcp-01/consume-public-contract
+    paths:
+      - .github/workflows/mcp01-address-suppressed-adversary.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mcp-01/consume-public-contract
+          fetch-depth: 0
+
+      - name: Apply exact fail-closed fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          affairs = Path("src/tools/affairs.ts")
+          text = affairs.read_text(encoding="utf-8")
+          old = '''  const knownValues = affairs
+              .map((affair) => affair[field])
+              .filter((value): value is string => typeof value === "string");
+
+            if (knownValues.some((value) => value !== expected)) {
+              throw new ApiError(
+                502,
+                `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,
+              );
+            }'''
+          new = '''  const knownValues = affairs
+              .map((affair) => affair[field])
+              .filter((value): value is string => typeof value === "string");
+
+            if (
+              (affairs.length > 0 && knownValues.length !== affairs.length) ||
+              knownValues.some((value) => value !== expected)
+            ) {
+              throw new ApiError(
+                502,
+                `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,
+              );
+            }'''
+          if old not in text:
+              raise SystemExit("Expected assertFilterApplied block not found")
+          affairs.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          politicians = Path("src/tools/politicians.ts")
+          text = politicians.read_text(encoding="utf-8")
+          old_import = '''import {
+            canPublishStartDate,
+            type FieldPublicationStatus,
+            UNVERIFIED_DATE_NOTICE,
+          } from "../editorial.js";'''
+          new_import = '''import {
+            canPublishStartDate,
+            type FieldPublicationStatus,
+            quoteData,
+            UNVERIFIED_DATE_NOTICE,
+          } from "../editorial.js";'''
+          old_render = '''      for (const cluster of data.clusters) {
+                lines.push(`## ${cluster.label} (${cluster.nodes.length})`);
+                for (const node of cluster.nodes.slice(0, 15)) {'''
+          new_render = '''      for (const cluster of data.clusters) {
+                lines.push(`## Relation (${cluster.nodes.length})`);
+                lines.push(quoteData(cluster.label));
+                for (const node of cluster.nodes.slice(0, 15)) {'''
+          if old_import not in text or old_render not in text:
+              raise SystemExit("Expected politician relation rendering block not found")
+          text = text.replace(old_import, new_import, 1).replace(old_render, new_render, 1)
+          politicians.write_text(text, encoding="utf-8")
+
+          api = Path("src/api.ts")
+          text = api.read_text(encoding="utf-8")
+          old = '''  if (url.origin !== BASE_ORIGIN) {
+              throw new ApiError(400, "Chemin API Poligraph invalide");
+            }'''
+          new = '''  if (url.origin !== BASE_ORIGIN || !url.pathname.startsWith("/api/")) {
+              throw new ApiError(400, "Chemin API Poligraph invalide");
+            }'''
+          if old not in text:
+              raise SystemExit("Expected API origin guard not found")
+          api.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/mcp01-address-suppressed-adversary.yml
+
+      - name: Verify patch
+        run: |
+          git diff --check
+          git diff --stat
+
+      - name: Commit targeted fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src .github/workflows/mcp01-address-suppressed-adversary.yml
+          git commit -m "fix: fail closed on suppressed MCP-01 findings"
+          git push origin HEAD:mcp-01/consume-public-contract
