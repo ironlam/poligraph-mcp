@@ -143,22 +143,27 @@ export function registerMandateTools(server: McpServer): void {
           total: data.pagination.total,
           page: data.pagination.page,
           totalPages: data.pagination.totalPages,
-          items: data.data.map((mandate) => ({
-            type: mandate.type,
-            title: mandate.title,
-            institution: mandate.institution,
-            constituency: mandate.constituency,
-            startDate: mandate.startDate,
-            startDatePublicationStatus:
-              mandate.startDatePublicationStatus ?? null,
-            endDate: mandate.endDate,
-            isCurrent: mandate.isCurrent,
-            politician: {
-              slug: mandate.politician.slug,
-              fullName: mandate.politician.fullName,
-              url: `https://poligraph.fr/politiques/${mandate.politician.slug}`,
-            },
-          })),
+          items: data.data.map((mandate) => {
+            const publishStartDate = canPublishStartDate(
+              mandate.startDatePublicationStatus,
+            );
+            return {
+              type: mandate.type,
+              title: mandate.title,
+              institution: mandate.institution,
+              constituency: mandate.constituency,
+              startDate: publishStartDate ? mandate.startDate : null,
+              startDatePublicationStatus:
+                mandate.startDatePublicationStatus ?? null,
+              endDate: mandate.endDate,
+              isCurrent: mandate.isCurrent,
+              politician: {
+                slug: mandate.politician.slug,
+                fullName: mandate.politician.fullName,
+                url: `https://poligraph.fr/politiques/${mandate.politician.slug}`,
+              },
+            };
+          }),
         },
       };
     },
