@@ -88,12 +88,14 @@ function mandateLine(mandate: Mandate): string {
   }
 
   if (canPublishStartDate(mandate.startDatePublicationStatus)) {
-    return `- ${identity} (${formatDate(mandate.startDate)} → ${formatDate(mandate.endDate)})`;
+    return mandate.endDate
+      ? `- ${identity} (${formatDate(mandate.startDate)} → ${formatDate(mandate.endDate)})`
+      : `- ${identity} (depuis ${formatDate(mandate.startDate)} ; indiqué comme terminé, date de fin non renseignée)`;
   }
 
   return mandate.endDate
     ? `- ${identity} (terminé le ${formatDate(mandate.endDate)} ; date de début non publiée)`
-    : `- ${identity} (terminé ; date de début non publiée)`;
+    : `- ${identity} (terminé ; dates de début non publiée et de fin non renseignée)`;
 }
 
 function formatPoliticianDetail(politician: PoliticianDetail): string {
