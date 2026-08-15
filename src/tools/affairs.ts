@@ -160,19 +160,22 @@ function formatAffairDetail(
 }
 
 function structuredAffair(affair: AffairItem) {
+  const semanticsAvailable = affair.semantics !== undefined;
+  const statusAppliesToPolitician =
+    affair.semantics?.statusAppliesToPolitician === true;
+
   return {
     slug: affair.slug,
     title: affair.title,
-    statusCode: affair.status,
-    categoryCode: affair.category,
-    involvementCode: affair.involvement ?? null,
+    contractSemanticsAvailable: semanticsAvailable,
+    statusCode: semanticsAvailable ? affair.status : null,
+    categoryCode: semanticsAvailable ? affair.category : null,
+    involvementCode: semanticsAvailable ? (affair.involvement ?? null) : null,
     semantics: affair.semantics ?? null,
     factsDate: affair.factsDate,
     startDate: affair.startDate,
-    verdictDate: affair.verdictDate,
-    sentence: affair.semantics?.statusAppliesToPolitician
-      ? affair.sentence
-      : null,
+    verdictDate: statusAppliesToPolitician ? affair.verdictDate : null,
+    sentence: statusAppliesToPolitician ? affair.sentence : null,
     sources: affair.sources.map((source) => ({
       url: source.url,
       title: source.title,
