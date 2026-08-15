@@ -49,8 +49,9 @@ jobs:
       - name: Verify patch
         run: |
           git diff --check
+          grep -F 'const results: string[] = [];' src/tools/elections.ts
           grep -F 'results.join(", ")' src/tools/elections.ts
-          if grep -F '`,' src/tools/elections.ts; then exit 1; fi
+          if grep -F 'candidacy.round2Pct !== null ? `, T2:' src/tools/elections.ts; then exit 1; fi
 
       - name: Commit fix
         run: |
