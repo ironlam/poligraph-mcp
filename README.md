@@ -188,7 +188,7 @@ Pour les affaires judiciaires :
 - le rôle (`DIRECT`, mention, victime, plaignant…) est distinct du statut de la procédure ;
 - les libellés de statut, catégorie, prudence, certitude et maturité sont fournis par le contrat canonique Poligraph ;
 - si cette sémantique canonique est absente, le MCP n'affiche pas le code interne comme signification éditoriale ;
-- le total legacy `affairsCount`, qui mélange tous les rôles publiés, reste disponible uniquement pour compatibilité structurée et n'est pas présenté comme indicateur à charge ;
+- le total legacy tous rôles est exposé par le MCP sous `legacyPublishedAffairsCountAllRoles`, uniquement pour compatibilité structurée, et n'est pas présenté comme indicateur à charge ;
 - les compteurs par rôle font foi pour la présentation.
 
 Pour les données incomplètes :

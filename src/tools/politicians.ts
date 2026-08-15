@@ -96,7 +96,7 @@ function mandateLine(mandate: Mandate): string {
 
   return mandate.endDate
     ? `- ${identity} (terminé le ${formatDate(mandate.endDate)} ; date de début non publiée)`
-    : `- ${identity} (terminé ; dates de début non publiée et de fin non renseignée)`;
+    : `- ${identity} (terminé ; date de début non publiée et date de fin non renseignée)`;
 }
 
 function formatPoliticianDetail(politician: PoliticianDetail): string {
