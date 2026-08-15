@@ -31,7 +31,6 @@ jobs:
 
   live-contract:
     name: Live public API contract
-    if: github.event_name != 'pull_request'
     needs: deterministic
     runs-on: ubuntu-latest
     steps:
