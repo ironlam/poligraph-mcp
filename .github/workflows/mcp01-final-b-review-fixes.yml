@@ -1,0 +1,67 @@
+name: MCP-01 final B review fixes
+
+on:
+  push:
+    branches:
+      - mcp-01/consume-public-contract
+    paths:
+      - .github/workflows/mcp01-final-b-review-fixes.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mcp-01/consume-public-contract
+          fetch-depth: 0
+
+      - name: Apply exact review fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          factchecks = Path("src/tools/factchecks.ts")
+          text = factchecks.read_text(encoding="utf-8")
+          old = '  lines.push(\n    `**Verdict du fact-check** : ${formatVerdict(factCheck.verdictRating)} — "${factCheck.verdict}"`,\n  );'
+          new = '  lines.push(`**Verdict normalisé du fact-check** : ${formatVerdict(factCheck.verdictRating)}`);\n  lines.push("_Verdict détaillé, donnée source :_");\n  lines.push(quoteData(factCheck.verdict));'
+          if old not in text:
+              raise SystemExit("fact-check verdict rendering block not found")
+          factchecks.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          editorial = Path("src/editorial.ts")
+          text = editorial.read_text(encoding="utf-8")
+          old = 'export type FieldPublicationStatus = "AVAILABLE" | "UNVERIFIED" | string;'
+          new = 'export type FieldPublicationStatus =\n  | "AVAILABLE"\n  | "UNVERIFIED"\n  | (string & {});'
+          if old not in text:
+              raise SystemExit("FieldPublicationStatus declaration not found")
+          editorial.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+          contract = Path("src/tests/api-contract.test.ts")
+          text = contract.read_text(encoding="utf-8")
+          old = '    assertString(p.partyColor, "partyColor");'
+          new = '    assertStringOrNull(p.partyColor, "partyColor");'
+          if old not in text:
+              raise SystemExit("partyColor assertion not found")
+          contract.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+      - name: Remove temporary workflow
+        run: rm .github/workflows/mcp01-final-b-review-fixes.yml
+
+      - name: Verify patch
+        run: |
+          git diff --check
+          grep -F 'Verdict détaillé, donnée source' src/tools/factchecks.ts
+          grep -F '(string & {})' src/editorial.ts
+          grep -F 'assertStringOrNull(p.partyColor' src/tests/api-contract.test.ts
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src .github/workflows/mcp01-final-b-review-fixes.yml
+          git commit -m "fix: close final MCP-01 MCP review gaps"
+          git push origin HEAD:mcp-01/consume-public-contract
