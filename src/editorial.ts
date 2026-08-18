@@ -1,0 +1,136 @@
+export interface AffairSemantics {
+  involvementLabel: string;
+  statusLabel: string;
+  statusDescription: string;
+  categoryLabel: string;
+  statusAppliesToPolitician: boolean;
+  needsPresumption: boolean;
+  certaintyLevel: string | null;
+  certaintyLabel: string | null;
+  judicialMaturity: string;
+  judicialMaturityLabel: string;
+}
+
+export interface ParticipationPublication {
+  participationRate: number | null;
+  participationStatus?: string;
+}
+
+export type FieldPublicationStatus = "AVAILABLE" | "UNVERIFIED" | (string & {});
+
+export const PARTICIPATION_PUBLICATION_STATUSES = [
+  "AVAILABLE",
+  "SOURCE_INSUFFICIENT",
+  "COMPUTATION_INCOMPLETE",
+] as const;
+
+export const START_DATE_PUBLICATION_STATUSES = [
+  "AVAILABLE",
+  "UNVERIFIED",
+] as const;
+
+export const PRESUMPTION_NOTICE =
+  "**Prudence** : la procédure est en cours ou la décision n'est pas définitive. La présomption d'innocence s'applique.";
+
+export const CONTRACT_SEMANTICS_UNAVAILABLE =
+  "Qualification éditoriale indisponible dans la version actuelle du contrat public Poligraph.";
+
+export const UNVERIFIED_DATE_NOTICE =
+  "Date de prise de fonction non affichée : sa provenance n'est pas encore suffisamment vérifiée.";
+
+export function quoteData(text: string): string {
+  return text
+    .split(/\r?\n/)
+    .map((line) => `> ${line}`)
+    .join("\n");
+}
+
+/**
+ * Preserve a structured enum only when its meaning is known by this MCP build.
+ * New upstream codes remain unknown (`null`) instead of being interpreted or
+ * surfaced as if they were part of the reviewed editorial vocabulary.
+ */
+export function knownEnumCode<T extends string>(
+  value: string | null | undefined,
+  allowed: readonly T[],
+): T | null {
+  return value !== null &&
+    value !== undefined &&
+    (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : null;
+}
+
+export function normalizeKnownEnumCounts<T extends string>(
+  counts: Record<string, number>,
+  allowed: readonly T[],
+): { known: Partial<Record<T, number>>; unrecognizedCount: number } {
+  const known: Partial<Record<T, number>> = {};
+  let unrecognizedCount = 0;
+
+  for (const [code, count] of Object.entries(counts)) {
+    if (!Number.isFinite(count) || count < 0) continue;
+    const knownCode = knownEnumCode(code, allowed);
+    if (knownCode) {
+      known[knownCode] = count;
+    } else {
+      unrecognizedCount += count;
+    }
+  }
+
+  return { known, unrecognizedCount };
+}
+
+export function affairSemanticsLines(
+  semantics: AffairSemantics | null | undefined,
+): string[] {
+  if (!semantics) {
+    return [`**Rôle et statut** : ${CONTRACT_SEMANTICS_UNAVAILABLE}`];
+  }
+
+  const lines = [`**Rôle de la personne** : ${semantics.involvementLabel}`];
+
+  if (semantics.statusAppliesToPolitician) {
+    lines.push(`**Statut de la procédure** : ${semantics.statusLabel}`);
+  } else {
+    lines.push(
+      `**Statut de l'affaire** : ${semantics.statusLabel} _(ce statut ne qualifie pas la personne suivie)_`,
+    );
+  }
+
+  lines.push(`**Faits qualifiés** : ${semantics.categoryLabel}`);
+  lines.push("_Description du statut, donnée Poligraph :_");
+  lines.push(quoteData(semantics.statusDescription));
+
+  return lines;
+}
+
+export function publishedParticipationRate(
+  value: ParticipationPublication,
+): number | null {
+  return value.participationStatus === "AVAILABLE" &&
+    value.participationRate !== null &&
+    Number.isFinite(value.participationRate)
+    ? value.participationRate
+    : null;
+}
+
+export function participationLine(value: ParticipationPublication): string {
+  const rate = publishedParticipationRate(value);
+  if (rate !== null) {
+    return `**Taux de participation** : ${rate}%`;
+  }
+
+  return "**Taux de participation** : non publié avec les données actuellement disponibles";
+}
+
+export function isPublishedNumber(value: unknown): value is number {
+  return typeof value === "number";
+}
+export function canPublishStartDate(
+  status: FieldPublicationStatus | undefined,
+): boolean {
+  // Old API responses do not carry a publication status. Absence is therefore
+  // unknown, never equivalent to AVAILABLE.
+  return status === "AVAILABLE";
+}

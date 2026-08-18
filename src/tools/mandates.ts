@@ -1,6 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { fetchAPI, formatDate } from "../api.js";
+import { ApiError, fetchAPI, formatDate } from "../api.js";
+import {
+  canPublishStartDate,
+  type FieldPublicationStatus,
+  knownEnumCode,
+  START_DATE_PUBLICATION_STATUSES,
+  UNVERIFIED_DATE_NOTICE,
+} from "../editorial.js";
 
 interface MandateItem {
   id: string;
@@ -11,6 +18,7 @@ interface MandateItem {
   constituency: string | null;
   departmentCode: string | null;
   startDate: string;
+  startDatePublicationStatus?: FieldPublicationStatus;
   endDate: string | null;
   isCurrent: boolean;
   politician: {
@@ -31,61 +39,42 @@ interface MandateListResponse {
   };
 }
 
-function formatMandateType(type: string): string {
-  const labels: Record<string, string> = {
-    DEPUTE: "Député(e)",
-    SENATEUR: "Sénateur/trice",
-    DEPUTE_EUROPEEN: "Député(e) européen(ne)",
-    PRESIDENT_REPUBLIQUE: "Président(e) de la République",
-    PREMIER_MINISTRE: "Premier(e) ministre",
-    MINISTRE: "Ministre",
-    MINISTRE_DELEGUE: "Ministre délégué(e)",
-    SECRETAIRE_ETAT: "Secrétaire d'État",
-    MAIRE: "Maire",
-    ADJOINT_MAIRE: "Adjoint(e) au maire",
-    PRESIDENT_REGION: "Président(e) de région",
-    PRESIDENT_DEPARTEMENT: "Président(e) de département",
-    CONSEILLER_REGIONAL: "Conseiller/ère régional(e)",
-    CONSEILLER_DEPARTEMENTAL: "Conseiller/ère départemental(e)",
-    CONSEILLER_MUNICIPAL: "Conseiller/ère municipal(e)",
-    PRESIDENT_PARTI: "Président(e) de parti",
-  };
-  return labels[type] || type;
-}
-
 export function registerMandateTools(server: McpServer): void {
   server.registerTool(
     "list_mandates",
     {
-      description: "Lister les mandats politiques avec filtres par type, institution, statut actif/terminé et politicien.",
+      description:
+        "Lister les mandats politiques publics. Une date de début n'est présentée comme ancienneté que si le contrat public la marque explicitement AVAILABLE.",
       inputSchema: {
         type: z
-          .enum([
-            "DEPUTE",
-            "SENATEUR",
-            "DEPUTE_EUROPEEN",
-            "PRESIDENT_REPUBLIQUE",
-            "PREMIER_MINISTRE",
-            "MINISTRE",
-            "SECRETAIRE_ETAT",
-            "MINISTRE_DELEGUE",
-            "PRESIDENT_REGION",
-            "PRESIDENT_DEPARTEMENT",
-            "MAIRE",
-            "ADJOINT_MAIRE",
-            "CONSEILLER_REGIONAL",
-            "CONSEILLER_DEPARTEMENTAL",
-            "CONSEILLER_MUNICIPAL",
-            "PRESIDENT_PARTI",
-          ])
+          .string()
+          .min(1)
+          .max(100)
           .optional()
-          .describe("Filtrer par type de mandat"),
-        isCurrent: z.boolean().optional().describe("true = mandats en cours, false = mandats terminés"),
-        institution: z.string().optional().describe("Recherche sur l'institution (ex: 'Assemblée', 'Sénat')"),
+          .describe("Code de type de mandat accepté par l'API publique"),
+        isCurrent: z
+          .boolean()
+          .optional()
+          .describe("true = mandats en cours, false = mandats terminés"),
+        institution: z
+          .string()
+          .max(200)
+          .optional()
+          .describe("Recherche sur l'institution (ex: 'Assemblée', 'Sénat')"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
-        limit: z.number().int().min(1).max(100).default(20).describe("Résultats par page (max 100)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Résultats par page (max 100)"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de mandats...",
         "openai/toolInvocation/invoked": "Mandats trouvés",
@@ -100,19 +89,56 @@ export function registerMandateTools(server: McpServer): void {
         limit,
       });
 
+      // A 2xx response has already been received. Invalid client values belong
+      // to the public API's 4xx validation; a mismatched successful payload is
+      // an upstream contract violation and intentionally maps to 502.
+      if (type && data.data.some((mandate) => mandate.type !== type)) {
+        throw new ApiError(
+          502,
+          "Le contrat public Poligraph n'a pas appliqué le filtre de mandat demandé",
+        );
+      }
+
       const lines: string[] = [];
-      lines.push(`**${data.pagination.total} mandats** (page ${data.pagination.page}/${data.pagination.totalPages})`);
+      lines.push(
+        `**${data.pagination.total} mandats** (page ${data.pagination.page}/${data.pagination.totalPages})`,
+      );
       lines.push("");
 
-      for (const m of data.data) {
-        const typeLabel = formatMandateType(m.type);
-        const status = m.isCurrent ? "En cours" : `Terminé (${formatDate(m.endDate)})`;
-        const constituency = m.constituency ? ` — ${m.constituency}` : "";
-        const institution = m.institution ? ` — ${m.institution}` : "";
+      for (const mandate of data.data) {
+        const constituency = mandate.constituency
+          ? ` — ${mandate.constituency}`
+          : "";
+        const institutionLabel = mandate.institution
+          ? ` — ${mandate.institution}`
+          : "";
 
-        lines.push(`- **${m.politician.fullName}** : ${typeLabel}${institution}${constituency}`);
-        lines.push(`  ${status} — depuis ${formatDate(m.startDate)}`);
-        lines.push(`  /politiques/${m.politician.slug}`);
+        lines.push(
+          `- **${mandate.politician.fullName}** : ${mandate.title}${institutionLabel}${constituency}`,
+        );
+
+        if (mandate.isCurrent) {
+          if (canPublishStartDate(mandate.startDatePublicationStatus)) {
+            lines.push(`  En cours — depuis ${formatDate(mandate.startDate)}`);
+          } else {
+            lines.push(`  En cours — ${UNVERIFIED_DATE_NOTICE}`);
+          }
+        } else {
+          const end = mandate.endDate
+            ? `Terminé le ${formatDate(mandate.endDate)}`
+            : "Mandat terminé — date de fin non renseignée";
+          if (canPublishStartDate(mandate.startDatePublicationStatus)) {
+            lines.push(
+              mandate.endDate
+                ? `  ${formatDate(mandate.startDate)} → ${formatDate(mandate.endDate)}`
+                : `  Depuis ${formatDate(mandate.startDate)} — mandat indiqué comme terminé, date de fin non renseignée`,
+            );
+          } else {
+            lines.push(`  ${end} — date de début non publiée`);
+          }
+        }
+
+        lines.push(`  /politiques/${mandate.politician.slug}`);
       }
 
       if (data.pagination.page < data.pagination.totalPages) {
@@ -126,20 +152,29 @@ export function registerMandateTools(server: McpServer): void {
           total: data.pagination.total,
           page: data.pagination.page,
           totalPages: data.pagination.totalPages,
-          items: data.data.map((m) => ({
-            type: m.type,
-            title: m.title,
-            institution: m.institution,
-            constituency: m.constituency,
-            startDate: m.startDate,
-            endDate: m.endDate,
-            isCurrent: m.isCurrent,
-            politician: {
-              slug: m.politician.slug,
-              fullName: m.politician.fullName,
-              url: `https://poligraph.fr/politiques/${m.politician.slug}`,
-            },
-          })),
+          items: data.data.map((mandate) => {
+            const publishStartDate = canPublishStartDate(
+              mandate.startDatePublicationStatus,
+            );
+            return {
+              type: mandate.type,
+              title: mandate.title,
+              institution: mandate.institution,
+              constituency: mandate.constituency,
+              startDate: publishStartDate ? mandate.startDate : null,
+              startDatePublicationStatus: knownEnumCode(
+                mandate.startDatePublicationStatus,
+                START_DATE_PUBLICATION_STATUSES,
+              ),
+              endDate: mandate.endDate,
+              isCurrent: mandate.isCurrent,
+              politician: {
+                slug: mandate.politician.slug,
+                fullName: mandate.politician.fullName,
+                url: `https://poligraph.fr/politiques/${mandate.politician.slug}`,
+              },
+            };
+          }),
         },
       };
     },

@@ -1,18 +1,37 @@
-name: API Contract Tests
+name: MCP Validation
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-  # Triggered by the main project when API routes change
+  # Triggered after the public API contract changes or is deployed.
   repository_dispatch:
     types: [api-contract-check]
-  # Manual trigger
+  # Manual release-gate smoke; can be run against the PR branch after PR A is deployed.
   workflow_dispatch:
 
 jobs:
-  test:
+  deterministic:
+    name: Deterministic validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev --audit-level=critical
+      - run: npm run build
+      - run: npm run test:unit
+
+  live-contract:
+    name: Live public API contract
+    needs: deterministic
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,4 +43,4 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm test
+      - run: npm run test:contract

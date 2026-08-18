@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchAPI, formatDate } from "../api.js";
+import { knownEnumCode } from "../editorial.js";
 
 interface ElectionListItem {
   id: string;
@@ -79,6 +80,28 @@ interface ElectionDetailResponse {
   rounds: Round[];
 }
 
+const ELECTION_TYPES = [
+  "PRESIDENTIELLE",
+  "LEGISLATIVES",
+  "SENATORIALES",
+  "MUNICIPALES",
+  "DEPARTEMENTALES",
+  "REGIONALES",
+  "EUROPEENNES",
+  "REFERENDUM",
+] as const;
+
+const ELECTION_STATUSES = [
+  "UPCOMING",
+  "REGISTRATION",
+  "CANDIDACIES",
+  "CAMPAIGN",
+  "ROUND_1",
+  "BETWEEN_ROUNDS",
+  "ROUND_2",
+  "COMPLETED",
+] as const;
+
 function formatElectionType(type: string): string {
   const labels: Record<string, string> = {
     PRESIDENTIELLE: "Présidentielle",
@@ -90,7 +113,7 @@ function formatElectionType(type: string): string {
     EUROPEENNES: "Européennes",
     REFERENDUM: "Référendum",
   };
-  return labels[type] || type;
+  return labels[type] ?? "Type d'élection non disponible";
 }
 
 function formatElectionStatus(status: string): string {
@@ -104,28 +127,74 @@ function formatElectionStatus(status: string): string {
     ROUND_2: "2nd tour",
     COMPLETED: "Terminée",
   };
-  return labels[status] || status;
+  return labels[status] ?? "Statut non disponible";
+}
+
+export function candidacyLine(candidacy: Candidacy): string {
+  const party = candidacy.party
+    ? ` (${candidacy.party.shortName})`
+    : candidacy.partyLabel
+      ? ` (${candidacy.partyLabel})`
+      : "";
+  const results: string[] = [];
+  if (candidacy.round1Pct !== null) results.push(`T1: ${candidacy.round1Pct}%`);
+  if (candidacy.round2Pct !== null) results.push(`T2: ${candidacy.round2Pct}%`);
+  const result = results.length > 0 ? ` — ${results.join(", ")}` : "";
+  return `${candidacy.candidateName}${party}${result}`;
 }
 
 export function registerElectionTools(server: McpServer): void {
   server.registerTool(
     "list_elections",
     {
-      description: "Lister les élections françaises (présidentielle, législatives, municipales, etc.) avec filtres.",
+      description:
+        "Lister les élections françaises avec filtres. Une donnée absente reste absente et n'est jamais assimilée à zéro ou à un résultat négatif.",
       inputSchema: {
         type: z
-          .enum(["PRESIDENTIELLE", "LEGISLATIVES", "SENATORIALES", "MUNICIPALES", "DEPARTEMENTALES", "REGIONALES", "EUROPEENNES", "REFERENDUM"])
+          .enum([
+            "PRESIDENTIELLE",
+            "LEGISLATIVES",
+            "SENATORIALES",
+            "MUNICIPALES",
+            "DEPARTEMENTALES",
+            "REGIONALES",
+            "EUROPEENNES",
+            "REFERENDUM",
+          ])
           .optional()
           .describe("Filtrer par type d'élection"),
         status: z
-          .enum(["UPCOMING", "REGISTRATION", "CANDIDACIES", "CAMPAIGN", "ROUND_1", "BETWEEN_ROUNDS", "ROUND_2", "COMPLETED"])
+          .enum([
+            "UPCOMING",
+            "REGISTRATION",
+            "CANDIDACIES",
+            "CAMPAIGN",
+            "ROUND_1",
+            "BETWEEN_ROUNDS",
+            "ROUND_2",
+            "COMPLETED",
+          ])
           .optional()
           .describe("Filtrer par statut"),
-        year: z.number().int().optional().describe("Filtrer par année (ex: 2027)"),
+        year: z
+          .number()
+          .int()
+          .optional()
+          .describe("Filtrer par année (ex: 2027)"),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
-        limit: z.number().int().min(1).max(100).default(20).describe("Résultats par page (max 100)"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Résultats par page (max 100)"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche d'élections...",
         "openai/toolInvocation/invoked": "Élections trouvées",
@@ -141,19 +210,35 @@ export function registerElectionTools(server: McpServer): void {
       });
 
       const lines: string[] = [];
-      lines.push(`**${data.pagination.total} élection(s)** (page ${data.pagination.page}/${data.pagination.totalPages})`);
+      lines.push(
+        `**${data.pagination.total} élection(s)** (page ${data.pagination.page}/${data.pagination.totalPages})`,
+      );
       lines.push("");
 
-      for (const e of data.data) {
-        const typeLabel = formatElectionType(e.type);
-        const statusLabel = formatElectionStatus(e.status);
-        const date = e.round1Date ? formatDate(e.round1Date) : "Date non confirmée";
-        const seats = e.totalSeats ? ` — ${e.totalSeats} sièges` : "";
-        const candidacies = e.candidacyCount > 0 ? ` — ${e.candidacyCount} candidat(s)` : "";
+      for (const election of data.data) {
+        const date = election.round1Date
+          ? formatDate(election.round1Date)
+          : "Date non renseignée";
+        const confirmed =
+          election.round1Date && !election.dateConfirmed
+            ? " (date non confirmée)"
+            : "";
+        const seats =
+          election.totalSeats !== null
+            ? ` — ${election.totalSeats} sièges`
+            : "";
+        const candidacies =
+          election.candidacyCount > 0
+            ? ` — ${election.candidacyCount} candidature(s)`
+            : "";
 
-        lines.push(`- **${e.title}** (${typeLabel})`);
-        lines.push(`  ${statusLabel} — ${date}${seats}${candidacies}`);
-        lines.push(`  /elections/${e.slug}`);
+        lines.push(
+          `- **${election.title}** (${formatElectionType(election.type)})`,
+        );
+        lines.push(
+          `  ${formatElectionStatus(election.status)} — ${date}${confirmed}${seats}${candidacies}`,
+        );
+        lines.push(`  /elections/${election.slug}`);
       }
 
       if (data.pagination.page < data.pagination.totalPages) {
@@ -167,16 +252,17 @@ export function registerElectionTools(server: McpServer): void {
           total: data.pagination.total,
           page: data.pagination.page,
           totalPages: data.pagination.totalPages,
-          items: data.data.map((e) => ({
-            slug: e.slug,
-            type: e.type,
-            title: e.title,
-            status: e.status,
-            round1Date: e.round1Date,
-            round2Date: e.round2Date,
-            totalSeats: e.totalSeats,
-            candidacyCount: e.candidacyCount,
-            url: `https://poligraph.fr/elections/${e.slug}`,
+          items: data.data.map((election) => ({
+            slug: election.slug,
+            type: knownEnumCode(election.type, ELECTION_TYPES),
+            title: election.title,
+            status: knownEnumCode(election.status, ELECTION_STATUSES),
+            round1Date: election.round1Date,
+            round2Date: election.round2Date,
+            dateConfirmed: election.dateConfirmed,
+            totalSeats: election.totalSeats,
+            candidacyCount: election.candidacyCount,
+            url: `https://poligraph.fr/elections/${election.slug}`,
           })),
         },
       };
@@ -186,83 +272,120 @@ export function registerElectionTools(server: McpServer): void {
   server.registerTool(
     "get_election",
     {
-      description: "Obtenir le détail d'une élection : candidatures, résultats par tour, participation.",
+      description:
+        "Obtenir le détail d'une élection : candidatures, résultats par tour et participation. null reste inconnu et 0 reste une valeur réelle.",
       inputSchema: {
-        slug: z.string().describe("Identifiant de l'élection (ex: 'municipales-2026', 'présidentielle-2027')"),
+        slug: z
+          .string()
+          .describe(
+            "Identifiant de l'élection (ex: 'municipales-2026', 'presidentielle-2027')",
+          ),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement de l'élection...",
         "openai/toolInvocation/invoked": "Élection chargée",
       },
     },
     async ({ slug }) => {
-      const data = await fetchAPI<ElectionDetailResponse>(`/api/elections/${encodeURIComponent(slug)}`);
+      const data = await fetchAPI<ElectionDetailResponse>(
+        `/api/elections/${encodeURIComponent(slug)}`,
+      );
 
       const lines: string[] = [];
-
       lines.push(`# ${data.title}`);
       lines.push(`**Type** : ${formatElectionType(data.type)}`);
       lines.push(`**Statut** : ${formatElectionStatus(data.status)}`);
 
       if (data.round1Date) {
-        lines.push(`**1er tour** : ${formatDate(data.round1Date)}${!data.dateConfirmed ? " (non confirmé)" : ""}`);
+        lines.push(
+          `**1er tour** : ${formatDate(data.round1Date)}${!data.dateConfirmed ? " (date non confirmée)" : ""}`,
+        );
       }
       if (data.round2Date) {
         lines.push(`**2nd tour** : ${formatDate(data.round2Date)}`);
       }
-      if (data.totalSeats) {
+      if (data.totalSeats !== null) {
         lines.push(`**Sièges** : ${data.totalSeats}`);
       }
-      if (data.scope) {
-        lines.push(`**Portée** : ${data.scope}`);
-      }
-      if (data.suffrage) {
-        lines.push(`**Suffrage** : ${data.suffrage}`);
-      }
+      if (data.scope) lines.push(`**Portée** : ${data.scope}`);
+      if (data.suffrage) lines.push(`**Suffrage** : ${data.suffrage}`);
 
-      // Rounds
       if (data.rounds.length > 0) {
         lines.push("");
         lines.push("## Tours de scrutin");
-        for (const r of data.rounds) {
-          lines.push(`### Tour ${r.round}${r.date ? ` — ${formatDate(r.date)}` : ""}`);
-          if (r.registeredVoters) lines.push(`- Inscrits : ${r.registeredVoters.toLocaleString("fr-FR")}`);
-          if (r.actualVoters) lines.push(`- Votants : ${r.actualVoters.toLocaleString("fr-FR")}`);
-          if (r.participationRate) lines.push(`- Participation : ${r.participationRate}%`);
-          if (r.blankVotes) lines.push(`- Bulletins blancs : ${r.blankVotes.toLocaleString("fr-FR")}`);
-          if (r.nullVotes) lines.push(`- Bulletins nuls : ${r.nullVotes.toLocaleString("fr-FR")}`);
+        for (const round of data.rounds) {
+          lines.push(
+            `### Tour ${round.round}${round.date ? ` — ${formatDate(round.date)}` : ""}`,
+          );
+          if (round.registeredVoters !== null) {
+            lines.push(
+              `- Inscrits : ${round.registeredVoters.toLocaleString("fr-FR")}`,
+            );
+          }
+          if (round.actualVoters !== null) {
+            lines.push(
+              `- Votants : ${round.actualVoters.toLocaleString("fr-FR")}`,
+            );
+          }
+          if (round.participationRate !== null) {
+            lines.push(`- Participation : ${round.participationRate}%`);
+          }
+          if (round.blankVotes !== null) {
+            lines.push(
+              `- Bulletins blancs : ${round.blankVotes.toLocaleString("fr-FR")}`,
+            );
+          }
+          if (round.nullVotes !== null) {
+            lines.push(
+              `- Bulletins nuls : ${round.nullVotes.toLocaleString("fr-FR")}`,
+            );
+          }
         }
       }
 
-      // Candidacies
       if (data.candidacies.length > 0) {
         lines.push("");
         lines.push(`## Candidatures (${data.candidacies.length})`);
 
-        const elected = data.candidacies.filter((c) => c.isElected);
-        const others = data.candidacies.filter((c) => !c.isElected);
+        const elected = data.candidacies.filter(
+          (candidacy) => candidacy.isElected === true,
+        );
+        const notElected = data.candidacies.filter(
+          (candidacy) => candidacy.isElected === false,
+        );
+        const unknown = data.candidacies.filter(
+          (candidacy) => candidacy.isElected === null,
+        );
 
         if (elected.length > 0) {
           lines.push("### Élu(e)s");
-          for (const c of elected) {
-            const party = c.party ? ` (${c.party.shortName})` : c.partyLabel ? ` (${c.partyLabel})` : "";
-            const r1 = c.round1Pct ? ` — T1: ${c.round1Pct}%` : "";
-            const r2 = c.round2Pct ? `, T2: ${c.round2Pct}%` : "";
-            lines.push(`- **${c.candidateName}**${party}${r1}${r2}`);
+          for (const candidacy of elected) {
+            lines.push(`- **${candidacyLine(candidacy)}**`);
           }
         }
 
-        if (others.length > 0) {
-          lines.push("### Autres candidat(e)s");
-          for (const c of others.slice(0, 20)) {
-            const party = c.party ? ` (${c.party.shortName})` : c.partyLabel ? ` (${c.partyLabel})` : "";
-            const r1 = c.round1Pct ? ` — T1: ${c.round1Pct}%` : "";
-            const r2 = c.round2Pct ? `, T2: ${c.round2Pct}%` : "";
-            lines.push(`- ${c.candidateName}${party}${r1}${r2}`);
+        if (notElected.length > 0) {
+          lines.push("### Autres candidatures avec résultat");
+          for (const candidacy of notElected.slice(0, 20)) {
+            lines.push(`- ${candidacyLine(candidacy)}`);
           }
-          if (others.length > 20) {
-            lines.push(`_... et ${others.length - 20} autres candidat(s)_`);
+          if (notElected.length > 20) {
+            lines.push(`_... et ${notElected.length - 20} autres_`);
+          }
+        }
+
+        if (unknown.length > 0) {
+          lines.push("### Résultat d'élection non renseigné");
+          for (const candidacy of unknown.slice(0, 20)) {
+            lines.push(`- ${candidacyLine(candidacy)}`);
+          }
+          if (unknown.length > 20) {
+            lines.push(`_... et ${unknown.length - 20} autres_`);
           }
         }
       }
@@ -274,26 +397,31 @@ export function registerElectionTools(server: McpServer): void {
         content: [{ type: "text" as const, text: lines.join("\n") }],
         structuredContent: {
           slug: data.slug,
-          type: data.type,
+          type: knownEnumCode(data.type, ELECTION_TYPES),
           title: data.title,
-          status: data.status,
+          status: knownEnumCode(data.status, ELECTION_STATUSES),
           round1Date: data.round1Date,
           round2Date: data.round2Date,
+          dateConfirmed: data.dateConfirmed,
           totalSeats: data.totalSeats,
-          rounds: data.rounds.map((r) => ({
-            round: r.round,
-            date: r.date,
-            registeredVoters: r.registeredVoters,
-            actualVoters: r.actualVoters,
-            participationRate: r.participationRate,
+          rounds: data.rounds.map((round) => ({
+            round: round.round,
+            date: round.date,
+            registeredVoters: round.registeredVoters,
+            actualVoters: round.actualVoters,
+            participationRate: round.participationRate,
+            blankVotes: round.blankVotes,
+            nullVotes: round.nullVotes,
           })),
-          candidacies: data.candidacies.map((c) => ({
-            candidateName: c.candidateName,
-            party: c.party ? c.party.shortName : c.partyLabel,
-            isElected: c.isElected,
-            round1Pct: c.round1Pct,
-            round2Pct: c.round2Pct,
-            politicianSlug: c.politician?.slug ?? null,
+          candidacies: data.candidacies.map((candidacy) => ({
+            candidateName: candidacy.candidateName,
+            party: candidacy.party
+              ? candidacy.party.shortName
+              : candidacy.partyLabel,
+            isElected: candidacy.isElected,
+            round1Pct: candidacy.round1Pct,
+            round2Pct: candidacy.round2Pct,
+            politicianSlug: candidacy.politician?.slug ?? null,
           })),
           url: `https://poligraph.fr/elections/${data.slug}`,
         },

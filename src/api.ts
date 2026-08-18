@@ -1,4 +1,7 @@
 const BASE_URL = "https://poligraph.fr";
+const BASE_ORIGIN = new URL(BASE_URL).origin;
+const REQUEST_TIMEOUT_MS = 10_000;
+const MAX_RESPONSE_BYTES = 2_000_000;
 
 /**
  * Format an ISO date string to a readable French date (ex: "21 décembre 1977").
@@ -29,11 +32,96 @@ export class ApiError extends Error {
   }
 }
 
+function isTimeoutError(error: unknown): boolean {
+  return error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+}
+
+function isSafeApiPath(pathname: string): boolean {
+  let candidate = pathname;
+
+  // URL normalizes canonical dot segments already. Re-decode a bounded number
+  // of times to reject double-encoded traversal/separator variants before the
+  // request reaches any server/router that may decode them again.
+  for (let i = 0; i < 3; i += 1) {
+    if (!candidate.startsWith("/api/") || candidate.includes("\\")) return false;
+
+    const segments = candidate.split("/");
+    if (segments.some((segment) => segment === "." || segment === "..")) return false;
+
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(candidate);
+    } catch {
+      return false;
+    }
+
+    if (decoded === candidate) return true;
+    candidate = decoded;
+  }
+
+  // Still changing after repeated decoding means the path is intentionally
+  // over-encoded; fail closed rather than relying on downstream normalization.
+  return false;
+}
+
+async function readBoundedBody(response: Response): Promise<string> {
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      let readResult: ReadableStreamReadResult<Uint8Array>;
+      try {
+        readResult = await reader.read();
+      } catch (error) {
+        if (isTimeoutError(error)) {
+          throw new ApiError(504, "Délai dépassé pour l'API publique Poligraph");
+        }
+        throw new ApiError(502, "API publique Poligraph indisponible");
+      }
+
+      const { done, value } = readResult;
+      if (done) break;
+      if (!value) continue;
+
+      total += value.byteLength;
+      if (total > MAX_RESPONSE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw new ApiError(502, "Réponse amont trop volumineuse");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(body);
+}
+
+function safeUpstreamError(status: number): ApiError {
+  // Upstream error bodies are untrusted data. Never reflect them into a model-visible
+  // error message, even when they contain JSON with an `error` field.
+  return new ApiError(status, `API ${status}: Erreur de l'API publique Poligraph`);
+}
+
 export async function fetchAPI<T>(
   path: string,
   params?: Record<string, string | number | boolean | undefined>,
 ): Promise<T> {
   const url = new URL(path, BASE_URL);
+
+  if (url.origin !== BASE_ORIGIN || !isSafeApiPath(url.pathname)) {
+    throw new ApiError(400, "Chemin API Poligraph invalide");
+  }
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -43,17 +131,32 @@ export async function fetchAPI<T>(
     }
   }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Accept: "application/json",
-      "User-Agent": "poligraph-mcp/1.0",
-    },
-  });
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "Unknown error");
-    throw new ApiError(response.status, `API ${response.status}: ${text}`);
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "poligraph-mcp/2.0",
+      },
+      redirect: "error",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    if (isTimeoutError(error)) {
+      throw new ApiError(504, "Délai dépassé pour l'API publique Poligraph");
+    }
+    throw new ApiError(502, "API publique Poligraph indisponible");
   }
 
-  return response.json() as Promise<T>;
+  const body = await readBoundedBody(response);
+
+  if (!response.ok) {
+    throw safeUpstreamError(response.status);
+  }
+
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    throw new ApiError(502, "Réponse JSON invalide de l'API publique Poligraph");
+  }
 }
