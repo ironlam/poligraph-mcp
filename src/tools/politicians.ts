@@ -6,6 +6,7 @@ import {
   type FieldPublicationStatus,
   isPublishedNumber,
   knownEnumCode,
+  normalizeKnownEnumCounts,
   quoteData,
   START_DATE_PUBLICATION_STATUSES,
   UNVERIFIED_DATE_NOTICE,
@@ -225,6 +226,59 @@ interface RelationsResponse {
   stats: { totalConnections: number; byType: Record<string, number> };
 }
 
+export const RELATION_TYPES = [
+  "SAME_GOVERNMENT",
+  "SHARED_COMPANY",
+  "SAME_DEPARTMENT",
+  "PARTY_HISTORY",
+] as const;
+
+type RelationType = (typeof RELATION_TYPES)[number];
+
+interface StructuredRelationNode {
+  slug: string;
+  fullName: string;
+  party: string | null;
+}
+
+export function normalizePoliticianRelations(
+  clusters: readonly RelationCluster[],
+  counts: Record<string, number>,
+): {
+  textClusters: Array<{ quotedLabel: string; nodes: RelationNode[] }>;
+  relations: Partial<Record<RelationType, StructuredRelationNode[]>>;
+  byType: Partial<Record<RelationType, number>>;
+  unrecognizedRelationCount: number;
+} {
+  const relations: Partial<
+    Record<RelationType, StructuredRelationNode[]>
+  > = {};
+  const textClusters = clusters.map((cluster) => {
+    const relationType = knownEnumCode(cluster.type, RELATION_TYPES);
+
+    if (relationType) {
+      relations[relationType] = cluster.nodes.map((node) => ({
+        slug: node.slug,
+        fullName: node.fullName,
+        party: node.party?.shortName ?? null,
+      }));
+    }
+
+    return {
+      quotedLabel: quoteData(cluster.label),
+      nodes: cluster.nodes,
+    };
+  });
+  const normalizedCounts = normalizeKnownEnumCounts(counts, RELATION_TYPES);
+
+  return {
+    textClusters,
+    relations,
+    byType: normalizedCounts.known,
+    unrecognizedRelationCount: normalizedCounts.unrecognizedCount,
+  };
+}
+
 export function registerPoliticianTools(server: McpServer): void {
   server.registerTool(
     "search_politicians",
@@ -366,14 +420,14 @@ export function registerPoliticianTools(server: McpServer): void {
       lines.push(`**${data.stats.totalConnections} connexions**`);
       lines.push("");
 
-      const relationsByType: Record<
-        string,
-        Array<{ slug: string; fullName: string; party: string | null }>
-      > = {};
+      const normalizedRelations = normalizePoliticianRelations(
+        data.clusters,
+        data.stats.byType,
+      );
 
-      for (const cluster of data.clusters) {
+      for (const cluster of normalizedRelations.textClusters) {
         lines.push(`## Relation (${cluster.nodes.length})`);
-        lines.push(quoteData(cluster.label));
+        lines.push(cluster.quotedLabel);
         for (const node of cluster.nodes.slice(0, 15)) {
           const nodeParty = node.party ? ` (${node.party.shortName})` : "";
           lines.push(`- **${node.fullName}**${nodeParty}`);
@@ -382,12 +436,6 @@ export function registerPoliticianTools(server: McpServer): void {
           lines.push(`_... et ${cluster.nodes.length - 15} autres_`);
         }
         lines.push("");
-
-        relationsByType[cluster.type] = cluster.nodes.map((node) => ({
-          slug: node.slug,
-          fullName: node.fullName,
-          party: node.party?.shortName ?? null,
-        }));
       }
 
       lines.push(
@@ -399,8 +447,10 @@ export function registerPoliticianTools(server: McpServer): void {
         structuredContent: {
           center: { slug: data.center.slug, fullName: data.center.fullName },
           totalConnections: data.stats.totalConnections,
-          byType: data.stats.byType,
-          relations: relationsByType,
+          byType: normalizedRelations.byType,
+          relations: normalizedRelations.relations,
+          unrecognizedRelationCount:
+            normalizedRelations.unrecognizedRelationCount,
           url: `https://poligraph.fr/politiques/${data.center.slug}/relations`,
         },
       };
