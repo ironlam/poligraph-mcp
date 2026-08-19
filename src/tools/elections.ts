@@ -191,9 +191,10 @@ export function registerElectionTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Lister les élections",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche d'élections...",
@@ -282,9 +283,10 @@ export function registerElectionTools(server: McpServer): void {
           ),
       },
       annotations: {
+        title: "Consulter une élection",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement de l'élection...",

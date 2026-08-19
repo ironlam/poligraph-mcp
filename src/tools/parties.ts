@@ -134,9 +134,10 @@ export function registerPartyTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Lister les partis politiques",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de partis politiques...",
@@ -207,9 +208,10 @@ export function registerPartyTools(server: McpServer): void {
           ),
       },
       annotations: {
+        title: "Consulter un parti politique",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement du parti...",

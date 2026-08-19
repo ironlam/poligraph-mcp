@@ -193,9 +193,10 @@ export function registerVoteTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Lister les scrutins parlementaires",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de scrutins...",
@@ -271,9 +272,10 @@ export function registerVoteTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Consulter les votes d’un parlementaire",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des votes...",
@@ -374,9 +376,10 @@ export function registerVoteTools(server: McpServer): void {
           .describe("Filtrer par chambre : AN (Assemblée) ou SENAT"),
       },
       annotations: {
+        title: "Consulter les statistiques de vote",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Calcul des statistiques de vote...",

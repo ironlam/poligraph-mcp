@@ -314,9 +314,10 @@ export function registerPoliticianTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Rechercher des personnalités politiques",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de politiciens...",
@@ -397,9 +398,10 @@ export function registerPoliticianTools(server: McpServer): void {
           .describe("Nombre max de connexions par type (max 50)"),
       },
       annotations: {
+        title: "Consulter les relations d’une personnalité",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des relations...",
@@ -470,9 +472,10 @@ export function registerPoliticianTools(server: McpServer): void {
           ),
       },
       annotations: {
+        title: "Consulter une personnalité politique",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement du politicien...",

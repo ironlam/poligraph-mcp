@@ -225,9 +225,10 @@ export function registerFactCheckTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Lister les fact-checks",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche de fact-checks...",
@@ -308,9 +309,10 @@ export function registerFactCheckTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Consulter les fact-checks d’une personnalité",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des fact-checks...",
@@ -398,9 +400,10 @@ export function registerFactCheckTools(server: McpServer): void {
           .describe("Nombre max de partis/personnalités retournés (max 50)"),
       },
       annotations: {
+        title: "Consulter les statistiques des fact-checks",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking":

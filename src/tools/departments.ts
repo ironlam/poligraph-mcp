@@ -57,7 +57,12 @@ export function registerDepartmentTools(server: McpServer): void {
           .default("all")
           .describe("Filtrer par type : all (députés + sénateurs), députés, sénateurs"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        title: "Consulter les statistiques d’un département",
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: true,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Calcul des statistiques par département...",
         "openai/toolInvocation/invoked": "Statistiques calculées",
@@ -136,7 +141,12 @@ export function registerDepartmentTools(server: McpServer): void {
       inputSchema: {
         department: z.string().describe("Nom du département (ex: 'Paris', 'Bouches-du-Rhône', 'Nord')"),
       },
-      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+      annotations: {
+        title: "Lister les députés d’un département",
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: true,
+      },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche des députés...",
         "openai/toolInvocation/invoked": "Députés trouvés",
