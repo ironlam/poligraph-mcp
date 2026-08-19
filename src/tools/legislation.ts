@@ -71,9 +71,10 @@ export function registerLegislationTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Rechercher dans le corpus PoliGraph",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche avancée en cours...",

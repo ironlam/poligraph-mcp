@@ -37,7 +37,9 @@ claude mcp add poligraph --transport http https://poligraph-mcp.vercel.app/mcp
 
 #### ChatGPT
 
-La distribution ChatGPT est traitée séparément dans le lot MCP-04 afin de suivre le mécanisme OpenAI en vigueur au moment de la publication. Ce README ne documente volontairement plus l'ancienne procédure « Actions ».
+Le parcours principal prévu pour ChatGPT est l’OpenAI Plugins Directory, via une soumission MCP-only. Un parcours facultatif et distinct vers le GPT Store reste possible avec un GPT personnalisé et une Action OpenAPI. L’issue `poligraph#737` concerne uniquement ce second parcours et ne bloque pas la soumission MCP. PoliGraph n’est pas encore présenté comme soumis, accepté ou publié dans ces annuaires.
+
+Le [dossier technique marketplace](docs/marketplace/README.md) rassemble les éléments préparatoires et les points restant à traiter.
 
 Le serveur expose déjà les métadonnées MCP utiles aux clients compatibles :
 

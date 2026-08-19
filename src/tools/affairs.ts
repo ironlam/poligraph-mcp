@@ -333,9 +333,10 @@ export function registerAffairTools(server: McpServer): void {
           .describe("Résultats par page (max 100)"),
       },
       annotations: {
+        title: "Lister les affaires judiciaires",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Recherche d'affaires judiciaires...",
@@ -414,9 +415,10 @@ export function registerAffairTools(server: McpServer): void {
           ),
       },
       annotations: {
+        title: "Consulter les affaires d’une personnalité",
         readOnlyHint: true,
         destructiveHint: false,
-        openWorldHint: false,
+        openWorldHint: true,
       },
       _meta: {
         "openai/toolInvocation/invoking": "Chargement des affaires...",
