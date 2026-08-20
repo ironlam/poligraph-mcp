@@ -2,7 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "",
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
+    { "source": "/", "destination": "/public/index.html" },
+    { "source": "/landing.css", "destination": "/public/landing.css" },
+    { "source": "/landing.js", "destination": "/public/landing.js" },
+    { "source": "/logo.svg", "destination": "/public/logo.svg" },
     { "source": "/mcp", "destination": "/api/mcp" }
   ],
   "headers": [
