@@ -14,6 +14,9 @@ Le serveur HTTP Streamable est déployé à l'adresse :
 https://mcp.poligraph.fr/mcp
 ```
 
+La [page d’accueil du serveur](https://mcp.poligraph.fr/) présente les outils, les garanties de
+lecture seule et les configurations rapides pour les clients MCP compatibles.
+
 L’adresse `https://poligraph-mcp.vercel.app/mcp` reste disponible comme alias de
 compatibilité.
 

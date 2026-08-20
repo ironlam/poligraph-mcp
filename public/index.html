@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f2ea" />
+    <meta
+      name="description"
+      content="Le serveur MCP officiel de Poligraph donne accès à 19 outils en lecture seule sur la vie politique française."
+    />
+    <link rel="canonical" href="https://mcp.poligraph.fr/" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/landing.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="Poligraph MCP" />
+    <meta
+      property="og:description"
+      content="19 outils en lecture seule pour interroger des données documentées sur la vie politique française."
+    />
+    <meta property="og:url" content="https://mcp.poligraph.fr/" />
+    <title>Poligraph MCP | Les données politiques françaises pour les agents IA</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="/" aria-label="Accueil Poligraph MCP">
+          <img src="/logo.svg" width="44" height="44" alt="" aria-hidden="true" />
+          <span class="brand-copy">
+            <strong>Poligraph</strong>
+            <span>MCP Server</span>
+          </span>
+        </a>
+
+        <nav class="main-nav" aria-label="Navigation principale">
+          <a href="#outils">Outils</a>
+          <a href="#connexion">Connexion</a>
+          <a href="#confiance">Confiance</a>
+          <a
+            class="nav-cta"
+            href="https://github.com/ironlam/poligraph-mcp#readme"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ouvrir la documentation"
+            title="Ouvrir la documentation"
+          >
+            Documentation
+            <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenu">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid" aria-hidden="true"></div>
+        <div class="orb orb-one" aria-hidden="true"></div>
+        <div class="orb orb-two" aria-hidden="true"></div>
+
+        <div class="shell hero-layout">
+          <div class="hero-copy">
+            <div class="eyebrow">
+              <span class="eyebrow-dot" aria-hidden="true"></span>
+              Serveur MCP officiel de Poligraph
+            </div>
+            <h1 id="hero-title">
+              La vie politique française,<br />
+              <span>accessible aux agents IA.</span>
+            </h1>
+            <p class="hero-lead">
+              Interrogez des données publiques et documentées sur les élus, leurs mandats,
+              les votes, les affaires judiciaires, les élections et les fact-checks.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#connexion">
+                Connecter Poligraph
+                <span aria-hidden="true">↓</span>
+              </a>
+              <a
+                class="button button-secondary"
+                href="https://poligraph.fr"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Explorer poligraph.fr
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <ul class="hero-facts" aria-label="Caractéristiques principales">
+              <li><strong>19</strong><span>outils documentés</span></li>
+              <li><strong>100 %</strong><span>lecture seule</span></li>
+              <li><strong>0</strong><span>compte requis</span></li>
+            </ul>
+          </div>
+
+          <aside class="endpoint-card" aria-label="Endpoint MCP public">
+            <div class="terminal-topbar">
+              <div class="terminal-lights" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <span>streamable-http</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="endpoint-heading">
+                <div>
+                  <span class="overline">Endpoint public</span>
+                  <h2>Prêt à connecter</h2>
+                </div>
+                <span class="protocol-badge">MCP</span>
+              </div>
+
+              <div class="endpoint-box">
+                <code id="main-endpoint">https://mcp.poligraph.fr/mcp</code>
+                <button
+                  class="copy-button"
+                  type="button"
+                  data-copy-target="main-endpoint"
+                  aria-label="Copier l’endpoint MCP"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 8h11v11H8z"></path>
+                    <path d="M5 16H4V5a1 1 0 0 1 1-1h11v1"></path>
+                  </svg>
+                  <span>Copier</span>
+                </button>
+              </div>
+
+              <div class="request-preview" aria-label="Exemple de connexion">
+                <div><span class="code-muted">transport</span><span class="code-value">streamable-http</span></div>
+                <div><span class="code-muted">auth</span><span class="code-value">none</span></div>
+                <div><span class="code-muted">capabilities</span><span class="code-value">tools</span></div>
+              </div>
+
+              <div class="read-only-note">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3 5 6v5c0 4.6 2.9 8.4 7 10 4.1-1.6 7-5.4 7-10V6l-7-3Z"></path>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+                <span><strong>Lecture seule.</strong> Aucune donnée ne peut être modifiée.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Domaines de données disponibles">
+        <div class="shell ticker-list">
+          <span>Politiciens</span><i aria-hidden="true"></i>
+          <span>Mandats</span><i aria-hidden="true"></i>
+          <span>Votes</span><i aria-hidden="true"></i>
+          <span>Affaires</span><i aria-hidden="true"></i>
+          <span>Élections</span><i aria-hidden="true"></i>
+          <span>Fact-checks</span>
+        </div>
+      </section>
+
+      <section class="section tools-section" id="outils" aria-labelledby="tools-title">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <span class="section-kicker">19 outils, une source commune</span>
+              <h2 id="tools-title">Questionnez les faits,<br />pas une boîte noire.</h2>
+            </div>
+            <p>
+              Chaque réponse s’appuie sur l’API publique Poligraph et conserve les liens vers les
+              sources disponibles. Les champs absents restent absents, ils ne sont jamais inventés.
+            </p>
+          </div>
+
+          <div class="tool-grid">
+            <article class="tool-card card-politicians">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"></circle><path d="M5 20c.7-4 3-6 7-6s6.3 2 7 6"></path></svg>
+              </div>
+              <span class="tool-count">3 outils</span>
+              <h3>Personnalités politiques</h3>
+              <p>Rechercher un élu, consulter sa fiche publique et explorer ses relations documentées.</p>
+            </article>
+
+            <article class="tool-card card-mandates">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 20h16M6 17h12M8 17V9m4 8V9m4 8V9M5 9h14L12 4 5 9Z"></path></svg>
+              </div>
+              <span class="tool-count">3 outils</span>
+              <h3>Mandats et territoires</h3>
+              <p>Examiner les fonctions exercées, les départements et la représentation politique.</p>
+            </article>
+
+            <article class="tool-card card-votes">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="m7 4 10 0 2 7H5l2-7Z"></path><path d="M4 11h16v9H4z"></path><path d="m9 7 2 2 4-4"></path></svg>
+              </div>
+              <span class="tool-count">4 outils</span>
+              <h3>Votes et législation</h3>
+              <p>Retrouver les scrutins parlementaires, les positions et les textes législatifs associés.</p>
+            </article>
+
+            <article class="tool-card card-affairs">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 20h16M7 17h10M9 17v-5h6v5M12 4v5"></path><path d="M8 7h8"></path></svg>
+              </div>
+              <span class="tool-count">2 outils</span>
+              <h3>Affaires judiciaires</h3>
+              <p>Consulter uniquement les affaires publiées, avec statuts, rôles et sources distincts.</p>
+            </article>
+
+            <article class="tool-card card-elections">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 9h14v11H5zM8 9V5h8v4"></path><path d="m9 14 2 2 4-4"></path></svg>
+              </div>
+              <span class="tool-count">4 outils</span>
+              <h3>Élections et partis</h3>
+              <p>Explorer les candidatures, les résultats et les organisations politiques françaises.</p>
+            </article>
+
+            <article class="tool-card card-facts">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"></path></svg>
+              </div>
+              <span class="tool-count">3 outils</span>
+              <h3>Fact-checks</h3>
+              <p>Rechercher les vérifications publiées et retrouver les verdicts de leurs sources.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section connect-section" id="connexion" aria-labelledby="connect-title">
+        <div class="shell connect-layout">
+          <div class="connect-intro">
+            <span class="section-kicker section-kicker-light">Connexion</span>
+            <h2 id="connect-title">Opérationnel en deux minutes.</h2>
+            <p>
+              Choisissez votre client, copiez la configuration et commencez à interroger les
+              données publiques de Poligraph.
+            </p>
+            <div class="compatibility-note">
+              <span aria-hidden="true">i</span>
+              <p>
+                L’alias <code>poligraph-mcp.vercel.app/mcp</code> reste disponible pour les
+                configurations existantes.
+              </p>
+            </div>
+          </div>
+
+          <div class="configurator">
+            <div class="tabs" role="tablist" aria-label="Choisir un client MCP">
+              <button
+                id="tab-desktop"
+                class="tab is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="panel-desktop"
+                tabindex="0"
+                data-tab="desktop"
+              >
+                Claude Desktop
+              </button>
+              <button
+                id="tab-code"
+                class="tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-code"
+                tabindex="-1"
+                data-tab="code"
+              >
+                Claude Code
+              </button>
+              <button
+                id="tab-generic"
+                class="tab"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="panel-generic"
+                tabindex="-1"
+                data-tab="generic"
+              >
+                Client MCP
+              </button>
+            </div>
+
+            <div
+              id="panel-desktop"
+              class="tab-panel"
+              role="tabpanel"
+              aria-labelledby="tab-desktop"
+              data-panel="desktop"
+            >
+              <div class="code-toolbar">
+                <span>claude_desktop_config.json</span>
+                <button type="button" data-copy-target="desktop-config">Copier</button>
+              </div>
+              <pre><code id="desktop-config">{
+  "mcpServers": {
+    "poligraph": {
+      "type": "streamable-http",
+      "url": "https://mcp.poligraph.fr/mcp"
+    }
+  }
+}</code></pre>
+            </div>
+
+            <div
+              id="panel-code"
+              class="tab-panel"
+              role="tabpanel"
+              aria-labelledby="tab-code"
+              data-panel="code"
+              hidden
+            >
+              <div class="code-toolbar">
+                <span>Terminal</span>
+                <button type="button" data-copy-target="code-config">Copier</button>
+              </div>
+              <pre><code id="code-config">claude mcp add poligraph --transport http https://mcp.poligraph.fr/mcp</code></pre>
+            </div>
+
+            <div
+              id="panel-generic"
+              class="tab-panel"
+              role="tabpanel"
+              aria-labelledby="tab-generic"
+              data-panel="generic"
+              hidden
+            >
+              <div class="code-toolbar">
+                <span>Streamable HTTP</span>
+                <button type="button" data-copy-target="generic-config">Copier</button>
+              </div>
+              <pre><code id="generic-config">https://mcp.poligraph.fr/mcp</code></pre>
+              <p class="panel-help">
+                Aucune authentification n’est requise. Les clients serveur à serveur peuvent se
+                connecter sans en-tête <code>Origin</code>.
+              </p>
+            </div>
+
+            <p class="copy-status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section trust-section" id="confiance" aria-labelledby="trust-title">
+        <div class="shell trust-layout">
+          <div class="trust-heading">
+            <span class="section-kicker">Confiance</span>
+            <h2 id="trust-title">Un accès ouvert,<br />des limites claires.</h2>
+            <p>
+              Le serveur donne accès aux mêmes informations publiques que Poligraph, sans accès
+              direct à la base de données et sans fonction d’écriture.
+            </p>
+          </div>
+
+          <div class="trust-list">
+            <article>
+              <span class="trust-number">01</span>
+              <div>
+                <h3>Lecture seule par conception</h3>
+                <p>Les 19 outils déclarent explicitement leurs opérations comme non destructives.</p>
+              </div>
+            </article>
+            <article>
+              <span class="trust-number">02</span>
+              <div>
+                <h3>Sources vérifiables</h3>
+                <p>Les réponses conservent les références publiques disponibles et leur contexte.</p>
+              </div>
+            </article>
+            <article>
+              <span class="trust-number">03</span>
+              <div>
+                <h3>Code source ouvert</h3>
+                <p>Le serveur, ses outils et ses règles éditoriales peuvent être audités publiquement.</p>
+              </div>
+            </article>
+            <article>
+              <span class="trust-number">04</span>
+              <div>
+                <h3>Prudence éditoriale</h3>
+                <p>Les rôles judiciaires, les statuts et la présomption d’innocence restent distincts.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="closing-section" aria-labelledby="closing-title">
+        <div class="shell closing-card">
+          <div class="closing-mark" aria-hidden="true">
+            <img src="/logo.svg" width="108" height="108" alt="" />
+          </div>
+          <div>
+            <span class="section-kicker section-kicker-light">Open data, open source</span>
+            <h2 id="closing-title">Une question politique mérite une réponse sourcée.</h2>
+          </div>
+          <a class="button button-light" href="#connexion">
+            Ajouter le serveur
+            <span aria-hidden="true">↑</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="/" aria-label="Accueil Poligraph MCP">
+            <img src="/logo.svg" width="42" height="42" alt="" aria-hidden="true" />
+            <span class="brand-copy">
+              <strong>Poligraph</strong>
+              <span>MCP Server</span>
+            </span>
+          </a>
+          <p>Un projet civique open source pour rendre la vie politique française plus lisible.</p>
+        </div>
+
+        <div class="footer-links">
+          <div>
+            <h2>Découvrir</h2>
+            <a href="https://poligraph.fr" target="_blank" rel="noopener noreferrer">Poligraph.fr</a>
+            <a href="https://poligraph.fr/methodologie" target="_blank" rel="noopener noreferrer">Méthodologie</a>
+            <a href="https://poligraph.fr/sources" target="_blank" rel="noopener noreferrer">Sources</a>
+          </div>
+          <div>
+            <h2>Développeurs</h2>
+            <a href="https://github.com/ironlam/poligraph-mcp#readme" target="_blank" rel="noopener noreferrer">Documentation</a>
+            <a href="https://github.com/ironlam/poligraph-mcp" target="_blank" rel="noopener noreferrer">Code source</a>
+            <a href="https://github.com/ironlam/poligraph-mcp/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Sécurité</a>
+          </div>
+          <div>
+            <h2>Informations</h2>
+            <a href="https://poligraph.fr/mentions-legales" target="_blank" rel="noopener noreferrer">Mentions légales</a>
+            <a href="mailto:contact@poligraph.fr">Support</a>
+            <a href="https://github.com/ironlam/poligraph-mcp/issues" target="_blank" rel="noopener noreferrer">Signaler un problème</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="shell footer-bottom">
+        <span>© Poligraph, Association Sankofa</span>
+        <span>Les données publiques au service du débat citoyen.</span>
+      </div>
+    </footer>
+
+    <script src="/landing.js" defer></script>
+  </body>
+</html>
