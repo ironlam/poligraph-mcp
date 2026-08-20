@@ -14,6 +14,8 @@ pas un dossier soumis, accepté ou publié.
 - Capacités : 19 tools en lecture seule.
 - Accès aux données : API publique `poligraph.fr` uniquement, sans accès direct à la base.
 - Secrets de service : aucun.
+- Éditeur public : Association Sankofa, RNA W931031256.
+- Canal public de support : https://poligraph.fr/support.
 - Validation `Origin` : toute origine présente doit être explicitement autorisée, sinon la
   requête est rejetée avec HTTP 403.
 
@@ -70,23 +72,29 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 
 ## Liens
 
+- [Homepage MCP](https://mcp.poligraph.fr/)
+- [Politique de confidentialité](https://poligraph.fr/confidentialite)
+- [Conditions d’utilisation](https://poligraph.fr/conditions-utilisation)
+- [Support](https://poligraph.fr/support)
+- [Mentions légales](https://poligraph.fr/mentions-legales)
+- [Signalement de sécurité](../../SECURITY.md)
 - [README du serveur](../../README.md)
 - [Sources PoliGraph](https://poligraph.fr/sources)
-- [Mentions légales](https://poligraph.fr/mentions-legales)
 
 ## TODO avant soumission
 
-- [ ] Politique de confidentialité dédiée au connecteur
-- [ ] Conditions d’utilisation
-- [ ] Page de support
-- [ ] Identité légale finale de l’éditeur
-- [ ] Textes des fiches marketplace
+- [x] Politique de confidentialité dédiée au connecteur
+- [x] Conditions d’utilisation
+- [x] Page de support
+- [x] Identité publique finale de l’éditeur : Association Sankofa
+- [ ] Vérification de l’identité dans les comptes éditeurs
+- [ ] Textes finaux des fiches marketplace
 - [ ] Starter prompts
 - [ ] Cinq tests positifs et trois tests négatifs
-- [ ] Vérification des comptes éditeurs
 - [ ] Validation MCP Inspector
-- [ ] Validation Claude
+- [ ] Validation finale Claude
 - [ ] Validation OpenAI Scan Tools
+- [ ] Habilitations des comptes et soumissions
 - [x] Validation de l’en-tête HTTP `Origin` sur le transport Streamable HTTP
 - [x] Rejet HTTP 403 des origines présentes mais non autorisées
 - [ ] Test unique avec les clients Claude et OpenAI avant de figer les origines acceptées

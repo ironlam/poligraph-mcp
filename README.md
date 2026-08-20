@@ -65,6 +65,21 @@ Le serveur HTTP local écoute uniquement sur `127.0.0.1`. Il autorise automatiqu
 `http://127.0.0.1:<port>` et `http://localhost:<port>` en complément de la politique commune.
 Cette configuration ne vaut pas validation préalable d’un client Claude ou OpenAI.
 
+## Informations publiques
+
+L’éditeur public du serveur est l’Association Sankofa.
+
+- Site du serveur : https://mcp.poligraph.fr/
+- Politique de confidentialité : https://poligraph.fr/confidentialite
+- Conditions d’utilisation : https://poligraph.fr/conditions-utilisation
+- Support : https://poligraph.fr/support
+- Mentions légales : https://poligraph.fr/mentions-legales
+- Signalement de sécurité : [SECURITY.md](SECURITY.md)
+
+Le support public est accessible sur https://poligraph.fr/support. Les vulnérabilités non
+divulguées ne doivent pas être publiées dans une issue GitHub. Utilisez la procédure décrite
+dans [SECURITY.md](SECURITY.md).
+
 ### Installation locale (stdio)
 
 ```bash
