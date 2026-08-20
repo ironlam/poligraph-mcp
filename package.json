@@ -14,7 +14,7 @@
     "start:http": "node build/http.js",
     "dev:http": "tsc && node build/http.js",
     "test": "npm run test:unit && npm run test:contract",
-    "test:unit": "node --test build/tests/editorial.test.js build/tests/api.test.js build/tests/tool-metadata.test.js",
+    "test:unit": "node --test build/tests/editorial.test.js build/tests/api.test.js build/tests/tool-metadata.test.js build/tests/http-origin.test.js",
     "test:contract": "node --test build/tests/api-contract.test.js",
     "test:build": "tsc && npm test"
   },
