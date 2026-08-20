@@ -48,8 +48,19 @@ test("the landing page keeps trust and support links explicit", () => {
 
   assert.match(html, /https:\/\/poligraph\.fr\/methodologie/);
   assert.match(html, /https:\/\/poligraph\.fr\/sources/);
-  assert.match(html, /https:\/\/poligraph\.fr\/mentions-legales/);
-  assert.match(html, /mailto:contact@poligraph\.fr/);
+  for (const publicInformationUrl of [
+    "https://poligraph.fr/confidentialite",
+    "https://poligraph.fr/conditions-utilisation",
+    "https://poligraph.fr/support",
+    "https://poligraph.fr/mentions-legales",
+  ]) {
+    assert.ok(html.includes(publicInformationUrl), `${publicInformationUrl} must be linked`);
+  }
+  assert.doesNotMatch(
+    html,
+    /<a[^>]+href="mailto:contact@poligraph\.fr"[^>]*>\s*Support\s*<\/a>/,
+    "the Support link must use the public support page",
+  );
   assert.match(html, /github\.com\/ironlam\/poligraph-mcp\/blob\/main\/SECURITY\.md/);
 });
 
