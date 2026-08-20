@@ -11,8 +11,11 @@ Permet aux journalistes, chercheurs et citoyens d'interroger des données docume
 Le serveur HTTP Streamable est déployé à l'adresse :
 
 ```
-https://poligraph-mcp.vercel.app/mcp
+https://mcp.poligraph.fr/mcp
 ```
+
+L’adresse `https://poligraph-mcp.vercel.app/mcp` reste disponible comme alias de
+compatibilité.
 
 #### Claude Desktop
 
@@ -23,7 +26,7 @@ Ajoutez dans votre configuration MCP :
   "mcpServers": {
     "poligraph": {
       "type": "streamable-http",
-      "url": "https://poligraph-mcp.vercel.app/mcp"
+      "url": "https://mcp.poligraph.fr/mcp"
     }
   }
 }
@@ -32,7 +35,7 @@ Ajoutez dans votre configuration MCP :
 #### Claude Code
 
 ```bash
-claude mcp add poligraph --transport http https://poligraph-mcp.vercel.app/mcp
+claude mcp add poligraph --transport http https://mcp.poligraph.fr/mcp
 ```
 
 #### ChatGPT
@@ -46,6 +49,18 @@ Le serveur expose déjà les métadonnées MCP utiles aux clients compatibles :
 - `annotations` avec `readOnlyHint: true` sur tous les tools ;
 - `_meta` pour les états d'invocation ;
 - `structuredContent` en complément du rendu textuel.
+
+### Politique Origin
+
+Les clients serveur-à-serveur n’ont pas besoin d’envoyer un en-tête HTTP `Origin`. Lorsqu’un
+client en envoie un, sa valeur doit correspondre exactement à une origine autorisée. La
+variable `MCP_ALLOWED_ORIGINS` permet d’ajouter des origines HTTPS exactes, séparées par des
+virgules, après observation officielle. Les wildcards, chemins, paramètres et fragments sont
+refusés.
+
+Le serveur HTTP local écoute uniquement sur `127.0.0.1`. Il autorise automatiquement
+`http://127.0.0.1:<port>` et `http://localhost:<port>` en complément de la politique commune.
+Cette configuration ne vaut pas validation préalable d’un client Claude ou OpenAI.
 
 ### Installation locale (stdio)
 

@@ -5,7 +5,8 @@ pas un dossier soumis, accepté ou publié.
 
 ## État technique vérifié
 
-- Endpoint actuel : `https://poligraph-mcp.vercel.app/mcp`.
+- Endpoint principal actif : `https://mcp.poligraph.fr/mcp`.
+- Alias de compatibilité : `https://poligraph-mcp.vercel.app/mcp`.
 - Transport : Streamable HTTP.
 - Type de serveur : Universal, identique pour tous les utilisateurs.
 - Authentification : aucune.
@@ -13,6 +14,8 @@ pas un dossier soumis, accepté ou publié.
 - Capacités : 19 tools en lecture seule.
 - Accès aux données : API publique `poligraph.fr` uniquement, sans accès direct à la base.
 - Secrets de service : aucun.
+- Validation `Origin` : toute origine présente doit être explicitement autorisée, sinon la
+  requête est rejetée avec HTTP 403.
 
 Le flux de données est le suivant :
 
@@ -52,6 +55,8 @@ journalisés par le handler.
 - Le serveur ne propose ni authentification, ni personnalisation par utilisateur, ni interface
   MCP App.
 - Les 19 tools sont exclusivement en lecture seule.
+- `MCP_ALLOWED_ORIGINS` permet d’ajouter une origine exacte uniquement après son observation
+  officielle. Aucune origine Claude ou OpenAI n’est présupposée.
 
 ## Parcours de publication
 
@@ -75,7 +80,6 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 - [ ] Conditions d’utilisation
 - [ ] Page de support
 - [ ] Identité légale finale de l’éditeur
-- [ ] Décision sur `mcp.poligraph.fr`
 - [ ] Textes des fiches marketplace
 - [ ] Starter prompts
 - [ ] Cinq tests positifs et trois tests négatifs
@@ -83,10 +87,10 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 - [ ] Validation MCP Inspector
 - [ ] Validation Claude
 - [ ] Validation OpenAI Scan Tools
-- [ ] Validation de l’en-tête HTTP `Origin` sur le transport Streamable HTTP
-- [ ] Rejet HTTP 403 des origines présentes mais non autorisées
+- [x] Validation de l’en-tête HTTP `Origin` sur le transport Streamable HTTP
+- [x] Rejet HTTP 403 des origines présentes mais non autorisées
 - [ ] Test unique avec les clients Claude et OpenAI avant de figer les origines acceptées
 
-L’écart relatif à `Origin` concerne `api/mcp.ts` et le transport HTTP. Il ne concerne ni
-MCP-01 ni le contrat des 19 tools et sera traité dans un lot séparé. Aucune origine Claude ou
-OpenAI ne doit être inventée ou codée en dur avant l’observation des requêtes officielles.
+La validation `Origin` est traitée dans le middleware applicatif extérieur au transport. Elle
+ne concerne ni MCP-01 ni le contrat des 19 tools. Aucune origine Claude ou OpenAI ne doit être
+inventée ou codée en dur avant l’observation des requêtes officielles.
