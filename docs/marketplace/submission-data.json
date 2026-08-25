@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "status": "DRAFT_NOT_READY_FOR_SUBMISSION",
+  "asOf": "2026-08-20",
+  "service": {
+    "name": "PoliGraph",
+    "publisher": "Association Sankofa",
+    "publisherType": "Association loi 1901",
+    "publisherRegistry": "RNA W931031256",
+    "publisherEmail": "contact@poligraph.fr",
+    "mcpUrl": "https://mcp.poligraph.fr/mcp",
+    "mcpAlias": "https://poligraph-mcp.vercel.app/mcp",
+    "websiteUrl": "https://mcp.poligraph.fr/",
+    "companyWebsiteUrl": "https://poligraph.fr",
+    "documentationUrl": "https://mcp.poligraph.fr/",
+    "privacyUrl": "https://poligraph.fr/confidentialite",
+    "termsUrl": "https://poligraph.fr/conditions-utilisation",
+    "supportUrl": "https://poligraph.fr/support",
+    "legalUrl": "https://poligraph.fr/mentions-legales",
+    "securityDocument": "SECURITY.md",
+    "transport": "streamable-http",
+    "serverUrlMode": "universal",
+    "authentication": "none",
+    "userAccountRequired": false,
+    "paidPlanRequired": false,
+    "embeddedUi": false,
+    "toolCount": 19,
+    "readOnly": true,
+    "writesExternalSystems": false,
+    "directDatabaseAccess": false,
+    "serviceSecrets": false
+  },
+  "listing": {
+    "name": "PoliGraph",
+    "taglineFr": "Données sourcées sur la vie politique française",
+    "shortDescriptionFr": "Consultez des données publiques et documentées sur les élus, mandats, votes, affaires judiciaires, élections et fact-checks en France.",
+    "longDescriptionFr": "PoliGraph donne aux assistants compatibles MCP un accès en lecture seule à 19 outils fondés sur l’API publique poligraph.fr. Recherchez des personnalités politiques, leurs mandats et relations documentées, consultez les scrutins parlementaires, les partis, les élections, les statistiques territoriales et les fact-checks publiés. Les affaires judiciaires sont présentées avec le rôle de la personne, le statut de la procédure, les sources disponibles et les précautions nécessaires : une procédure en cours n’est jamais assimilée à une culpabilité. Aucun compte PoliGraph n’est requis. Le corpus peut être incomplet ou évoluer ; vérifiez les sources originales pour toute utilisation importante. PoliGraph ne fournit pas de conseil juridique et ne permet aucune modification de données.",
+    "reviewerSummaryEn": "PoliGraph is a public, no-auth, read-only MCP server with 19 tools backed exclusively by the public poligraph.fr API. It supports research on French politicians, mandates, parliamentary votes, parties, elections, departmental representation, judicial affairs and fact-checks. Judicial information is role-aware and preserves procedural status, available sources and presumption-of-innocence safeguards. The server has no write capability and no embedded UI."
+  },
+  "useCases": [
+    "Rechercher une personnalité politique et retrouver sa fiche, ses mandats publiés et ses URLs publiques.",
+    "Examiner des scrutins parlementaires avec leur date, leur résultat, les répartitions de vote et leur source.",
+    "Explorer les élus, partis et statistiques de représentation par territoire.",
+    "Retrouver des fact-checks avec l’affirmation vérifiée, le verdict publié, la source et la date.",
+    "Consulter des affaires judiciaires publiées en distinguant le rôle de la personne, le statut procédural, les décisions éventuelles et les sources."
+  ],
+  "claude": {
+    "submissionType": "remote_mcp",
+    "directory": "Connectors Directory",
+    "serverName": "PoliGraph",
+    "tagline": "Données sourcées sur la vie politique française",
+    "description": "PoliGraph donne aux assistants compatibles MCP un accès en lecture seule à 19 outils fondés sur l’API publique poligraph.fr. Recherchez des personnalités politiques, leurs mandats et relations documentées, consultez les scrutins parlementaires, les partis, les élections, les statistiques territoriales et les fact-checks publiés. Les affaires judiciaires sont présentées avec le rôle de la personne, le statut de la procédure, les sources disponibles et les précautions nécessaires : une procédure en cours n’est jamais assimilée à une culpabilité. Aucun compte PoliGraph n’est requis. Le corpus peut être incomplet ou évoluer ; vérifiez les sources originales pour toute utilisation importante. PoliGraph ne fournit pas de conseil juridique et ne permet aucune modification de données.",
+    "mcpUrl": "https://mcp.poligraph.fr/mcp",
+    "sameUrlForAllUsers": true,
+    "authentication": "none",
+    "userSetupRequired": false,
+    "testAccountRequired": false,
+    "paidPlanRequired": false,
+    "readWriteClassification": "read_only",
+    "healthData": false,
+    "sponsoredContent": false,
+    "companyName": "Association Sankofa",
+    "companyWebsite": "https://poligraph.fr",
+    "documentationUrl": "https://mcp.poligraph.fr/",
+    "privacyUrl": "https://poligraph.fr/confidentialite",
+    "supportUrl": "https://poligraph.fr/support",
+    "iconAsset": "docs/marketplace/assets/poligraph-icon-512.png",
+    "permanentSlugCandidate": "poligraph",
+    "permanentSlugStatus": "NEEDS_HUMAN_SELECTION_AND_AVAILABILITY_CHECK",
+    "categories": {
+      "status": "NEEDS_HUMAN_SELECTION",
+      "candidateConcepts": [
+        "Recherche",
+        "Éducation",
+        "Données publiques",
+        "Information"
+      ]
+    },
+    "claudeAccountRequirements": [
+      {
+        "requirement": "Organisation Claude Team ou Enterprise",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Rôle permettant la gestion du Directory",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Identité de l’Association Sankofa cohérente avec les pages publiques",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Slug disponible et validé humainement",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Catégories sélectionnées dans le portail",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Chaque tool testé avec MCP Inspector ou un connecteur Claude personnalisé",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "URL et listing revus dans le portail",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Soumission explicitement autorisée par Lamine",
+        "status": "NOT_VALIDATED"
+      }
+    ]
+  },
+  "openai": {
+    "submissionType": "with_mcp",
+    "distribution": "Plugins Directory",
+    "pluginMode": "mcp_only",
+    "mcpServerUrlType": "universal",
+    "mcpUrl": "https://mcp.poligraph.fr/mcp",
+    "authentication": "none",
+    "embeddedUi": false,
+    "screenshotsRequired": false,
+    "packageName": "poligraph-mcp",
+    "version": "2.0.0",
+    "displayName": "PoliGraph",
+    "developerName": "Association Sankofa",
+    "pluginName": "PoliGraph",
+    "shortDescription": "Données politiques sourcées",
+    "longDescription": "PoliGraph donne aux assistants compatibles MCP un accès en lecture seule à 19 outils fondés sur l’API publique poligraph.fr. Recherchez des personnalités politiques, leurs mandats et relations documentées, consultez les scrutins parlementaires, les partis, les élections, les statistiques territoriales et les fact-checks publiés. Les affaires judiciaires sont présentées avec le rôle de la personne, le statut de la procédure, les sources disponibles et les précautions nécessaires : une procédure en cours n’est jamais assimilée à une culpabilité. Aucun compte PoliGraph n’est requis. Le corpus peut être incomplet ou évoluer ; vérifiez les sources originales pour toute utilisation importante. PoliGraph ne fournit pas de conseil juridique et ne permet aucune modification de données.",
+    "capabilities": [
+      "Rechercher des personnalités politiques publiées",
+      "Consulter des mandats et relations documentées",
+      "Explorer des scrutins parlementaires",
+      "Consulter des affaires judiciaires publiées",
+      "Explorer élections, partis et territoires",
+      "Consulter des fact-checks publiés"
+    ],
+    "starterPrompts": [
+      "Résume la fiche publique et les mandats d’Emmanuel Macron, avec les liens disponibles.",
+      "Liste cinq scrutins publiés avec date, résultat, voix et source.",
+      "Présente les affaires publiées concernant Nicolas Sarkozy avec rôle, statut, décisions et sources."
+    ],
+    "websiteUrl": "https://mcp.poligraph.fr/",
+    "supportUrl": "https://poligraph.fr/support",
+    "privacyUrl": "https://poligraph.fr/confidentialite",
+    "termsUrl": "https://poligraph.fr/conditions-utilisation",
+    "logoAsset": "docs/marketplace/assets/poligraph-icon-512.png",
+    "category": {
+      "status": "NEEDS_HUMAN_SELECTION",
+      "candidateConcepts": [
+        "Recherche",
+        "Éducation",
+        "Données publiques",
+        "Actualité et information"
+      ]
+    },
+    "availability": {
+      "status": "NEEDS_HUMAN_SELECTION",
+      "recommendation": "France en lancement initial",
+      "rationale": "Le corpus et les textes sont centrés sur la vie politique française."
+    },
+    "releaseNotesFr": "Première soumission publique de PoliGraph sous forme de plugin MCP-only. Le serveur expose 19 tools en lecture seule pour consulter des données publiques et sourcées sur la vie politique française. Il utilise le transport Streamable HTTP, ne requiert aucune authentification et n’embarque aucune interface utilisateur.",
+    "demoRecording": {
+      "status": "NEEDS_HUMAN_RECORDING_AND_HTTPS_URL",
+      "url": null,
+      "document": "docs/marketplace/OPENAI_DEMO_RECORDING.md",
+      "requiredBeforeSubmission": true
+    },
+    "toolAnnotationJustifications": {
+      "document": "docs/marketplace/openai-tool-justifications.json",
+      "toolCount": 19,
+      "status": "DRAFT_NOT_SCANNED_IN_OPENAI_PORTAL",
+      "openWorldReviewStatus": "NEEDS_SCAN_TOOLS_CONFIRMATION"
+    },
+    "openaiAccountRequirements": [
+      {
+        "requirement": "Organisation OpenAI Platform",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Identité professionnelle vérifiée pour l’Association Sankofa",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Permission Apps Management: Write ou api.apps.write",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Projet OpenAI avec résidence globale",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Ne pas utiliser un projet à résidence de données UE pour cette soumission",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Challenge de domaine généré par le portail",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Correspondance exacte entre la valeur du challenge générée et le contenu déployé dans /.well-known/openai-apps-challenge",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Scan Tools exécuté après saisie de l’URL",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Métadonnées et annotations relues dans le snapshot du portail",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Disponibilité géographique sélectionnée humainement",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Release notes validées humainement",
+        "status": "NOT_VALIDATED"
+      },
+      {
+        "requirement": "Soumission explicitement autorisée par Lamine",
+        "status": "NOT_VALIDATED"
+      }
+    ]
+  },
+  "humanDecisions": [
+    "Validation humaine finale des textes de fiche",
+    "Sélection des catégories Claude et OpenAI dans les portails",
+    "Sélection et vérification de disponibilité du slug Claude",
+    "Sélection des régions OpenAI",
+    "Validation humaine des release notes OpenAI",
+    "Autorisations explicites de soumettre à Claude et à OpenAI"
+  ],
+  "externalValidations": [
+    "Déploiement de la PR #11 observé sur la homepage publique",
+    "Habilitations Claude et OpenAI vérifiées",
+    "Challenge de domaine OpenAI vérifié dans le portail sans conserver sa valeur dans le dépôt",
+    "MCP Inspector exécuté",
+    "Test Claude officiel exécuté",
+    "OpenAI Scan Tools exécuté",
+    "Cinq tests positifs et trois tests négatifs exécutés dans les portails officiels"
+  ]
+}

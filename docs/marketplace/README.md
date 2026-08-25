@@ -81,23 +81,65 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 - [README du serveur](../../README.md)
 - [Sources PoliGraph](https://poligraph.fr/sources)
 
-## TODO avant soumission
+## Dossier de soumission
 
-- [x] Politique de confidentialité dédiée au connecteur
+- [Source de vérité structurée](submission-data.json)
+- [Cas de test structurés](test-cases.json)
+- [Brouillon Claude](CLAUDE_SUBMISSION.md)
+- [Brouillon OpenAI](OPENAI_SUBMISSION.md)
+- [Préparation de la démonstration OpenAI](OPENAI_DEMO_RECORDING.md)
+- [Justifications des annotations OpenAI](openai-tool-justifications.json)
+- [Version humaine des cas de test](TEST_CASES.md)
+- [Limites d’usage et invariants éditoriaux](POLICY_BOUNDARIES.md)
+- [Documentation de l’asset](assets/README.md)
+- [Icône PNG commune](assets/poligraph-icon-512.png)
+
+## Livré dans le dépôt
+
+- [x] Politique de confidentialité
 - [x] Conditions d’utilisation
-- [x] Page de support
-- [x] Identité publique finale de l’éditeur : Association Sankofa
-- [ ] Vérification de l’identité dans les comptes éditeurs
-- [ ] Textes finaux des fiches marketplace
-- [ ] Starter prompts
-- [ ] Cinq tests positifs et trois tests négatifs
-- [ ] Validation MCP Inspector
-- [ ] Validation finale Claude
-- [ ] Validation OpenAI Scan Tools
-- [ ] Habilitations des comptes et soumissions
-- [x] Validation de l’en-tête HTTP `Origin` sur le transport Streamable HTTP
-- [x] Rejet HTTP 403 des origines présentes mais non autorisées
-- [ ] Test unique avec les clients Claude et OpenAI avant de figer les origines acceptées
+- [x] Support
+- [x] Identité publique Association Sankofa
+- [x] Brouillon structuré de la fiche Claude
+- [x] Brouillon structuré de la fiche OpenAI
+- [x] Trois starter prompts OpenAI conformes aux limites de soumission
+- [x] Cinq tests positifs
+- [x] Trois tests négatifs
+- [x] Brouillon des justifications d’annotations pour les 19 tools
+- [x] Package name, version, display name et developer name documentés
+- [x] Politique d’usage et limites éditoriales
+- [x] Asset PNG commun
+- [x] Validation Origin
+- [x] Rejet 403
+
+## À valider humainement ou extérieurement
+
+- [ ] Déploiement de la PR #11 observé sur la homepage publique
+- [ ] Validation humaine finale des textes de fiche
+- [ ] Catégories Claude
+- [ ] Catégorie OpenAI
+- [ ] Slug Claude
+- [ ] Régions OpenAI
+- [ ] Organisation Claude Team ou Enterprise
+- [ ] Droit Directory management
+- [ ] Identité Association Sankofa vérifiée
+- [ ] Projet OpenAI à résidence globale
+- [ ] Permission Apps Management: Write ou api.apps.write
+- [ ] Challenge de domaine
+- [ ] Enregistrement de démonstration OpenAI créé
+- [ ] URL HTTPS de démonstration accessible
+- [ ] MCP Inspector
+- [ ] Test Claude officiel
+- [ ] OpenAI Scan Tools
+- [ ] Valeurs et justifications des 19 tools confirmées dans le portail
+- [ ] Interprétation openWorldHint confirmée pour les tools de lecture publique
+- [ ] Exécution officielle des cinq tests positifs
+- [ ] Exécution officielle des trois tests négatifs
+- [ ] Autorisation explicite de soumettre à Claude
+- [ ] Autorisation explicite de soumettre à OpenAI
+- [ ] Soumission Claude
+- [ ] Soumission OpenAI
+- [ ] Publication explicite après acceptation
 
 La validation `Origin` est traitée dans le middleware applicatif extérieur au transport. Elle
 ne concerne ni MCP-01 ni le contrat des 19 tools. Aucune origine Claude ou OpenAI ne doit être
