@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "status": "DRAFT_NOT_SCANNED_IN_OPENAI_PORTAL",
+  "openWorldReviewStatus": "NEEDS_SCAN_TOOLS_CONFIRMATION",
+  "runtimeAnnotationsChanged": false,
+  "tools": [
+    {
+      "name": "search_politicians",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Recherche des personnalités politiques publiées en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette recherche n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des personnalités et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_politician",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte la fiche publiée d’une personnalité en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation de fiche n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner une personnalité, ses mandats et ses sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_politician_relations",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte les relations documentées d’une personnalité en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation de relations n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des relations, entités et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_affairs",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les affaires judiciaires publiées en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste d’affaires n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des affaires, entités judiciaires et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_politician_affairs",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte les affaires publiées d’une personnalité en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation d’affaires n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner une personnalité, des affaires et des sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_votes",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les scrutins parlementaires publiés en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste de scrutins n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des scrutins, résultats et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_politician_votes",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte les votes publiés d’un parlementaire en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation de votes n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner un parlementaire, ses votes et des sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_vote_stats",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Calcule un agrégat de scrutins et de votes à partir de données lues uniquement dans l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Ce calcul de statistiques n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut agréger des scrutins, partis et données publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_mandates",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les mandats politiques publiés en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste de mandats n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des mandats, institutions et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_parties",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les partis politiques publiés en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste de partis n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des partis, organisations et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_party",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte la fiche publiée d’un parti politique en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation de parti n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner un parti, ses membres et des sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_factchecks",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les fact-checks publiés en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste de fact-checks n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des fact-checks, organismes et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_politician_factchecks",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte les fact-checks publiés mentionnant une personnalité via uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation de fact-checks n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner une personnalité, des fact-checks et des sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_factcheck_stats",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Calcule un agrégat du corpus de fact-checks à partir de données lues uniquement dans l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Ce calcul d’agrégats n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut agréger des fact-checks, organismes et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "list_elections",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les élections publiées en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste d’élections n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des élections, territoires et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_election",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Consulte le détail publié d’une élection en utilisant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette consultation d’élection n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner une élection, ses candidatures, résultats et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_department_stats",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Calcule un agrégat de représentation départementale à partir de données lues uniquement dans l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Ce calcul départemental n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut agréger des données publiques sur les départements, élus et partis ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "get_deputies_by_department",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Liste les députés publiés d’un département en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette liste de députés n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner des députés, circonscriptions et sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    },
+    {
+      "name": "search_advanced",
+      "readOnlyHint": {
+        "value": true,
+        "justification": "Recherche dans le corpus public combiné en consultant uniquement l’API publique PoliGraph ; le tool ne crée, ne modifie et ne supprime aucune donnée et ne déclenche aucune action externe."
+      },
+      "destructiveHint": {
+        "value": false,
+        "justification": "Cette recherche avancée n’effectue aucune suppression, aucun écrasement, n’envoie aucun message, n’exécute aucune transaction, ne déclenche aucun job ou workflow et ne produit aucune action irréversible."
+      },
+      "openWorldHint": {
+        "value": true,
+        "justification": "Le tool consulte l’API publique PoliGraph, extérieure au processus MCP, et peut retourner plusieurs types d’entités et de sources publiques ; il ne publie, n’envoie et ne modifie aucun état public. readOnlyHint et destructiveHint décrivent cette absence de mutation."
+      }
+    }
+  ]
+}
