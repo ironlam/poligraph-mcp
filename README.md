@@ -1,5 +1,7 @@
 # Poligraph MCP Server
 
+[![Listed in france-mcp-servers](https://img.shields.io/badge/listed%20in-france--mcp--servers-blue)](https://github.com/bsab/france-mcp-servers)
+
 Serveur [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) qui expose les données publiques de [Poligraph](https://poligraph.fr/) comme tools pour les clients MCP compatibles.
 
 Permet aux journalistes, chercheurs et citoyens d'interroger des données documentées sur la vie politique française en langage naturel.
@@ -103,6 +105,16 @@ Puis configurez votre client MCP pour exécuter :
 ```
 
 ## Tools disponibles (19)
+
+### Exemples de requêtes
+
+Les tools peuvent être utilisés à partir de questions en langage naturel, par exemple :
+
+- « Quels députés publiés représentent actuellement la Seine-et-Marne ? »
+- « Compare les votes de deux parlementaires sur les scrutins liés aux retraites. »
+- « Quelles affaires judiciaires publiées concernent cette personnalité, et quel rôle lui est attribué dans chacune ? »
+
+Le serveur sélectionne le tool adapté et renvoie les données publiques disponibles avec leurs sources et leurs limites.
 
 ### Politiciens
 
