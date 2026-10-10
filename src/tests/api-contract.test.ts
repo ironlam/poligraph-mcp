@@ -708,11 +708,14 @@ describe("GET /api/elections/:slug", () => {
     assertString(data.title, "title");
     assertString(data.status, "status");
 
-    // Candidacies
+    // Candidacies: one bounded page since poligraph#874
+    const candidacies = data.candidacies as Record<string, unknown>;
     assert.ok(
-      Array.isArray(data.candidacies),
-      "candidacies should be an array",
+      Array.isArray(candidacies.data),
+      "candidacies.data should be an array",
     );
+    const pagination = candidacies.pagination as Record<string, unknown>;
+    assertNumber(pagination.total, "candidacies.pagination.total");
 
     // Rounds
     assert.ok(Array.isArray(data.rounds), "rounds should be an array");

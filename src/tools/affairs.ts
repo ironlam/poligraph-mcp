@@ -78,7 +78,8 @@ interface PoliticianAffairsResponse {
   total: number;
 }
 
-const AFFAIR_STATUSES = [
+export const AFFAIR_STATUSES = [
+  "PLAINTE_DEPOSEE",
   "ENQUETE_PRELIMINAIRE",
   "INSTRUCTION",
   "INSTRUCTION_CLOTUREE_SANS_MISE_EN_EXAMEN",
