@@ -76,9 +76,15 @@ interface ElectionDetailResponse {
   round2Date: string | null;
   dateConfirmed: boolean;
   totalSeats: number | null;
-  candidacies: Candidacy[];
+  // Paginated by the API since poligraph#874 (one page, at most 100 per request).
+  candidacies: {
+    data: Candidacy[];
+    pagination: { page: number; limit: number; total: number; totalPages: number };
+  };
   rounds: Round[];
 }
+
+const CANDIDACIES_LIMIT = 100;
 
 const ELECTION_TYPES = [
   "PRESIDENTIELLE",
@@ -295,7 +301,7 @@ export function registerElectionTools(server: McpServer): void {
     },
     async ({ slug }) => {
       const data = await fetchAPI<ElectionDetailResponse>(
-        `/api/elections/${encodeURIComponent(slug)}`,
+        `/api/elections/${encodeURIComponent(slug)}?limit=${CANDIDACIES_LIMIT}`,
       );
 
       const lines: string[] = [];
@@ -350,17 +356,24 @@ export function registerElectionTools(server: McpServer): void {
         }
       }
 
-      if (data.candidacies.length > 0) {
+      const candidacies = data.candidacies.data;
+      const candidacyTotal = data.candidacies.pagination.total;
+      if (candidacies.length > 0) {
         lines.push("");
-        lines.push(`## Candidatures (${data.candidacies.length})`);
+        lines.push(`## Candidatures (${candidacyTotal})`);
+        if (candidacyTotal > candidacies.length) {
+          lines.push(
+            `_Seules les ${candidacies.length} premières candidatures sont détaillées ici._`,
+          );
+        }
 
-        const elected = data.candidacies.filter(
+        const elected = candidacies.filter(
           (candidacy) => candidacy.isElected === true,
         );
-        const notElected = data.candidacies.filter(
+        const notElected = candidacies.filter(
           (candidacy) => candidacy.isElected === false,
         );
-        const unknown = data.candidacies.filter(
+        const unknown = candidacies.filter(
           (candidacy) => candidacy.isElected === null,
         );
 
@@ -415,7 +428,8 @@ export function registerElectionTools(server: McpServer): void {
             blankVotes: round.blankVotes,
             nullVotes: round.nullVotes,
           })),
-          candidacies: data.candidacies.map((candidacy) => ({
+          candidacyTotal,
+          candidacies: candidacies.map((candidacy) => ({
             candidateName: candidacy.candidateName,
             party: candidacy.party
               ? candidacy.party.shortName
