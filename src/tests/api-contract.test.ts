@@ -101,7 +101,7 @@ describe("GET /api/politiques", () => {
       assertString(party.id, "currentParty.id");
       assertString(party.name, "currentParty.name");
       assertString(party.shortName, "currentParty.shortName");
-      assertString(party.color, "currentParty.color");
+      assertStringOrNull(party.color, "currentParty.color");
     }
   });
 
@@ -491,7 +491,8 @@ describe("GET /api/partis", () => {
     assertString(p.slug, "slug");
     assertString(p.name, "name");
     assertString(p.shortName, "shortName");
-    assertString(p.color, "color");
+    // Un parti sans couleur renvoie null (Party.color est facultatif).
+    assertStringOrNull(p.color, "color");
     assertNumber(p.memberCount, "memberCount");
   });
 
@@ -517,7 +518,7 @@ describe("GET /api/partis/:slug", () => {
     assertString(data.slug, "slug");
     assertString(data.name, "name");
     assertString(data.shortName, "shortName");
-    assertString(data.color, "color");
+    assertStringOrNull(data.color, "color");
     assertNumber(data.memberCount, "memberCount");
 
     // Members
