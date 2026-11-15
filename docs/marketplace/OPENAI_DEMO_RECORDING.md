@@ -18,11 +18,10 @@ supportées.
 
 ## Scénario recommandé
 
-1. Connecter le client au serveur de production.
-2. Rechercher une personnalité, puis consulter sa fiche publique.
-3. Consulter un scrutin et ouvrir ou identifier sa source.
-4. Consulter une affaire en distinguant le rôle, le statut et les précautions applicables.
-5. Montrer que le serveur ne propose aucun tool d’écriture.
+1. Connecter le candidat sur les surfaces OpenAI sélectionnées et documenter chacune d’elles.
+2. Montrer les cinq cas positifs de [TEST_CASES.md](TEST_CASES.md) avec les outils effectivement appelés. Ouvrir une source de scrutin, montrer le rôle et le statut judiciaires, puis couvrir la représentation territoriale et un verdict de fact-check attribué à sa source.
+3. Montrer les trois cas négatifs. La réponse traite la rectification, le ciblage et les erreurs d’attribution sans lancer d’écriture, produire de profil d’électeur ou confondre mention et culpabilité.
+4. Vérifier que la vidéo est lisible hors session authentifiée et renseigner son URL dans les détails de revue.
 
 ## Sécurité de l’enregistrement
 

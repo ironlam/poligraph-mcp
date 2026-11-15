@@ -27,9 +27,9 @@ Claude ou ChatGPT
 → API publique poligraph.fr
 ```
 
-Le handler HTTP journalise les informations opérationnelles suivantes : timestamp, méthode,
-identifiant de requête, user-agent et en-tête `accept`. Les arguments des tools ne sont pas
-journalisés par le handler.
+Le candidat journalise les événements d’erreur ou de rejet HTTP. Les requêtes MCP normales,
+leurs arguments et leurs identifiants JSON-RPC ne sont pas enregistrés par le handler.
+La mise à jour de la politique de confidentialité doit suivre le déploiement du runtime MCP.
 
 ## Prudence éditoriale
 
@@ -114,14 +114,13 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 
 ## À valider humainement ou extérieurement
 
-- [ ] Déploiement de la PR #11 observé sur la homepage publique
+- [ ] Déploiement et test des 19 outils sur le candidat public
 - [ ] Validation humaine finale des textes de fiche
 - [ ] Catégories Claude
 - [ ] Catégorie OpenAI
 - [ ] Slug Claude
 - [ ] Régions OpenAI
-- [ ] Organisation Claude Team ou Enterprise
-- [ ] Droit Directory management
+- [ ] Compte Claude payant et droit de soumettre
 - [ ] Identité Association Sankofa vérifiée
 - [ ] Projet OpenAI à résidence globale
 - [ ] Permission Apps Management: Write ou api.apps.write
@@ -131,15 +130,15 @@ soumissions MCP aux annuaires Claude ou OpenAI.
 - [ ] MCP Inspector
 - [ ] Test Claude officiel
 - [ ] OpenAI Scan Tools
-- [ ] Valeurs et justifications des 19 tools confirmées dans le portail
+- [ ] Valeurs des annotations des 19 outils confirmées dans le portail
 - [ ] Interprétation openWorldHint confirmée pour les tools de lecture publique
 - [ ] Exécution officielle des cinq tests positifs
 - [ ] Exécution officielle des trois tests négatifs
-- [ ] Autorisation explicite de soumettre à Claude
+- [ ] Autorisation explicite de soumettre à Claude, publication automatique Community comprise
 - [ ] Autorisation explicite de soumettre à OpenAI
 - [ ] Soumission Claude
 - [ ] Soumission OpenAI
-- [ ] Publication explicite après acceptation
+- [ ] Publication OpenAI explicitement autorisée après acceptation
 
 La validation `Origin` est traitée dans le middleware applicatif extérieur au transport. Elle
 ne concerne ni MCP-01 ni le contrat des 19 tools. Aucune origine Claude ou OpenAI ne doit être

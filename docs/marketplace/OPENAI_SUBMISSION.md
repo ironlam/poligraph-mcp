@@ -67,9 +67,21 @@ périmètre de ce lot.
 
 ## Catégorie
 
-La catégorie doit être sélectionnée humainement dans le portail. Concepts candidats :
-Recherche, Éducation, Données publiques, Actualité et information. Ces concepts ne sont pas
-présentés comme des valeurs garanties du portail.
+Le ZIP utilise `Education & Research`, catégorie documentée par OpenAI. L’éditeur confirme
+ce choix lors de la relecture avant mise en ligne.
+
+## ZIP et champs importés
+
+Construire le ZIP depuis la racine du dépôt avec
+`python3 scripts/package-openai.py /chemin/poligraph-openai-2.0.0.zip`.
+Le paquet Agent Plugins contient `plugin.json`, `mcp.json` et l’icône PNG. Il importe les
+5 cas positifs, les 3 cas négatifs et les notes de version. Les textes de base sont en anglais,
+avec une traduction française du titre court et de la description.
+
+La disponibilité par pays est à choisir dans le portail. La vidéo doit être ajoutée à
+**Review information → Review details** ou intégrée au ZIP via l’option `--demo-url` lorsque
+son URL HTTPS est disponible. Dans la connexion MCP, vérifier que le portail détecte l’accès sans authentification.
+Le challenge de domaine est géré séparément.
 
 ## Starter prompts
 
@@ -105,7 +117,7 @@ présentés comme des valeurs garanties du portail.
 - Le challenge de domaine doit être généré dans le portail.
 - La valeur générée doit correspondre exactement au contenu déployé dans
   `/.well-known/openai-apps-challenge`.
-- Aucune valeur de challenge n’est conservée dans ce dépôt.
+- Le ZIP exclut le fichier de challenge. Vérifier le jeton exact actuel dans le portail et servir son texte brut à l’URL indiquée, après autorisation du changement en production.
 - Scan Tools doit être exécuté après la saisie de l’URL.
 - Les métadonnées et annotations doivent être relues dans le snapshot du portail.
 
@@ -126,11 +138,19 @@ Les 19 tools exposent les valeurs runtime suivantes :
 - `destructiveHint: false` ;
 - `openWorldHint: true`.
 
-Les justifications sont préparées dans
-[openai-tool-justifications.json](openai-tool-justifications.json). Le snapshot produit par Scan
-Tools doit confirmer les valeurs et leur interprétation. Le runtime ne doit pas être modifié sur
-la seule base d’une hypothèse. Si Scan Tools ou un reviewer conteste `openWorldHint` pour ce cas
-de lecture de l’API publique, une clarification OpenAI doit être demandée avant toute correction.
+Le scan doit confirmer ces valeurs. Les règles générales indiquent que les justifications ne
+sont plus requises. La référence des erreurs de soumission mentionne encore leur contrôle.
+Les [justifications préparées](openai-tool-justifications.json) restent disponibles si le portail
+les demande.
+
+## Point de revue sur les données
+
+L’API de première partie expose des informations publiques sur des responsables politiques,
+dont leur affiliation et des affaires judiciaires publiées. Décrire ce périmètre dans les notes
+de revue, avec les sources, les règles d’attribution des décisions et le canal de rectification.
+Avant soumission, confirmer avec l’éditeur et OpenAI les conditions de traitement des données
+sensibles applicables à ce corpus. La publication préalable sur le site ne suffit pas à
+établir l’éligibilité à l’annuaire.
 
 ## Checklist compte, identité et publication
 
@@ -139,14 +159,14 @@ de lecture de l’API publique, une clarification OpenAI doit être demandée av
 - [ ] Permission Apps Management: Write ou `api.apps.write` confirmée
 - [ ] Projet OpenAI avec résidence globale confirmé
 - [ ] Projet à résidence de données UE exclu de cette soumission
-- [ ] Catégorie sélectionnée humainement
+- [ ] Catégorie du ZIP et textes de fiche relus
 - [ ] Disponibilité géographique sélectionnée humainement
 - [ ] Release notes validées humainement
 - [ ] Challenge de domaine généré et vérifié dans le portail
 - [ ] Enregistrement de démonstration créé et hébergé derrière une URL HTTPS accessible
 - [ ] Scan Tools exécuté
 - [ ] Snapshot des tools relu
-- [ ] Valeurs et justifications des annotations confirmées
+- [ ] Valeurs des annotations confirmées et justifications fournies si demandées
 - [ ] Interprétation de `openWorldHint` confirmée
 - [ ] Cinq tests positifs et trois tests négatifs exécutés officiellement
 - [ ] Autorisation explicite de soumettre donnée par Lamine
@@ -155,3 +175,5 @@ de lecture de l’API publique, une clarification OpenAI doit être demandée av
 
 La création de la soumission, sa transmission et toute publication après acceptation restent
 explicitement non exécutées.
+
+[Paquet Agent Plugins](https://developers.openai.com/plugins/build/plugins) · [Soumission et champs du ZIP](https://developers.openai.com/plugins/deploy/submission) · [Revue du serveur MCP](https://developers.openai.com/plugins/deploy/app-review) · [Règles de publication](https://developers.openai.com/plugins/plugin-guidelines) · [Erreurs du portail](https://developers.openai.com/plugins/deploy/submission-errors)

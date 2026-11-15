@@ -78,11 +78,11 @@
     },
     "claudeAccountRequirements": [
       {
-        "requirement": "Organisation Claude Team ou Enterprise",
+        "requirement": "Compte Claude payant",
         "status": "NOT_VALIDATED"
       },
       {
-        "requirement": "Rôle permettant la gestion du Directory",
+        "requirement": "Compte individuel, Owner Team/Enterprise ou permission Directory déléguée en Enterprise",
         "status": "NOT_VALIDATED"
       },
       {
@@ -109,7 +109,9 @@
         "requirement": "Soumission explicitement autorisée par Lamine",
         "status": "NOT_VALIDATED"
       }
-    ]
+    ],
+    "portalUrl": "https://claude.ai/directory/manage",
+    "listingMayPublishAutomatically": true
   },
   "openai": {
     "submissionType": "with_mcp",
@@ -152,7 +154,8 @@
         "Éducation",
         "Données publiques",
         "Actualité et information"
-      ]
+      ],
+      "packageValue": "Education & Research"
     },
     "availability": {
       "status": "NEEDS_HUMAN_SELECTION",
@@ -221,7 +224,19 @@
         "requirement": "Soumission explicitement autorisée par Lamine",
         "status": "NOT_VALIDATED"
       }
-    ]
+    ],
+    "baseListingEn": {
+      "shortDescription": "Sourced French political data",
+      "longDescription": "PoliGraph provides 19 read-only tools backed by the public poligraph.fr API for citizens, journalists and researchers. Look up French political figures, mandates, documented relationships, parliamentary votes, parties, elections, departmental representation and published fact-checks. Published judicial information includes the person’s role, the procedural status, available sources and applicable presumption-of-innocence notices. Coverage may be incomplete. No PoliGraph account is required. The connector cannot modify data or give legal advice.",
+      "capabilities": [
+        "Find public political profiles",
+        "Read mandates and documented relationships",
+        "Explore parliamentary votes",
+        "Read published judicial information",
+        "Explore elections, parties and departments",
+        "Read published fact-checks"
+      ]
+    }
   },
   "humanDecisions": [
     "Validation humaine finale des textes de fiche",
@@ -229,12 +244,12 @@
     "Sélection et vérification de disponibilité du slug Claude",
     "Sélection des régions OpenAI",
     "Validation humaine des release notes OpenAI",
-    "Autorisations explicites de soumettre à Claude et à OpenAI"
+    "Autorisations explicites de soumettre à OpenAI et de soumettre à Claude avec publication automatique possible"
   ],
   "externalValidations": [
-    "Déploiement de la PR #11 observé sur la homepage publique",
+    "Déploiement coordonné du candidat MCP et de la page de confidentialité",
     "Habilitations Claude et OpenAI vérifiées",
-    "Challenge de domaine OpenAI vérifié dans le portail sans conserver sa valeur dans le dépôt",
+    "Challenge de domaine OpenAI vérifié dans le portail sans inclure le jeton dans le ZIP",
     "MCP Inspector exécuté",
     "Test Claude officiel exécuté",
     "OpenAI Scan Tools exécuté",
