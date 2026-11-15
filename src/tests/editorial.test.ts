@@ -334,6 +334,13 @@ test("source verdict text remains quoted data even when it looks like an instruc
   );
 });
 
+test("a conviction confirmed on appeal keeps its status code", () => {
+  assert.equal(
+    knownEnumCode("CONDAMNATION_EN_APPEL", AFFAIR_STATUSES),
+    "CONDAMNATION_EN_APPEL",
+  );
+});
+
 test("a complaint-only affair keeps its status code", () => {
   assert.equal(
     knownEnumCode("PLAINTE_DEPOSEE", AFFAIR_STATUSES),
