@@ -8,7 +8,7 @@ interface PartyListItem {
   slug: string;
   name: string;
   shortName: string;
-  color: string;
+  color: string | null;
   politicalPosition: string | null;
   logoUrl: string | null;
   foundedDate: string | null;
@@ -41,7 +41,7 @@ interface PartyDetailResponse {
   slug: string;
   name: string;
   shortName: string;
-  color: string;
+  color: string | null;
   politicalPosition: string | null;
   logoUrl: string | null;
   foundedDate: string | null;
