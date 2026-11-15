@@ -27,10 +27,10 @@ interface AffairItem {
   involvement?: string;
   semantics?: AffairSemantics | null;
   factsDate: string | null;
-  startDate: string;
+  startDate: string | null;
   verdictDate: string | null;
   sentence: string | null;
-  appeal: string | null;
+  appeal: boolean | null;
   partyAtTime: {
     shortName: string;
     name: string;
@@ -80,6 +80,7 @@ interface PoliticianAffairsResponse {
 
 export const AFFAIR_STATUSES = [
   "PLAINTE_DEPOSEE",
+  "SIGNALEMENT_PARQUET",
   "ENQUETE_PRELIMINAIRE",
   "INSTRUCTION",
   "INSTRUCTION_CLOTUREE_SANS_MISE_EN_EXAMEN",
@@ -157,18 +158,13 @@ function assertFilterApplied(
 ): void {
   if (!expected) return;
 
-  const knownValues = affairs
-    .map((affair) => affair[field])
-    .filter((value): value is string => typeof value === "string");
+  const acceptedValues = field === "involvement" ? expected.split(",") : [expected];
 
   // fetchAPI has already accepted a 2xx response here. Invalid client filter
   // values must be rejected by the public API as 4xx; a successful response
   // that omits or changes the requested filter is therefore an upstream
   // contract violation and intentionally maps to 502.
-  if (
-    (affairs.length > 0 && knownValues.length !== affairs.length) ||
-    knownValues.some((value) => value !== expected)
-  ) {
+  if (affairs.some((affair) => !acceptedValues.includes(affair[field] ?? ""))) {
     throw new ApiError(
       502,
       `Le contrat public Poligraph n'a pas appliqué le filtre ${field} demandé`,
@@ -208,9 +204,8 @@ function formatAffairDetail(
       lines.push("**Peine, donnée Poligraph :**");
       lines.push(quoteData(affair.sentence));
     }
-    if (affair.appeal) {
-      lines.push("**Recours, donnée Poligraph :**");
-      lines.push(quoteData(affair.appeal));
+    if (affair.appeal === true) {
+      lines.push("**Recours** : un appel est signalé dans les données PoliGraph.");
     }
   }
 
@@ -286,9 +281,10 @@ function structuredAffair(affair: AffairItem) {
       statusAppliesToPolitician && affair.sentence
         ? quoteData(affair.sentence)
         : null,
+    // The upstream false is a database default, without a publication status.
     appeal:
-      statusAppliesToPolitician && affair.appeal
-        ? quoteData(affair.appeal)
+      statusAppliesToPolitician && affair.appeal === true
+        ? affair.appeal
         : null,
     sources: affair.sources.map((source) => ({
       url: source.url,
@@ -323,7 +319,7 @@ export function registerAffairTools(server: McpServer): void {
           .max(100)
           .optional()
           .describe(
-            "Rôle de la personne dans l'affaire (ex: DIRECT, VICTIM, PLAINTIFF)",
+            "Codes de rôle séparés par une virgule, sans espaces (ex: DIRECT,VICTIM)",
           ),
         page: z.number().int().min(1).default(1).describe("Numéro de page"),
         limit: z
@@ -413,7 +409,7 @@ export function registerAffairTools(server: McpServer): void {
           .max(100)
           .optional()
           .describe(
-            "Rôle à filtrer ; en l'absence de valeur, l'API publique utilise son défaut",
+            "Codes de rôle séparés par une virgule, sans espaces (ex: DIRECT,VICTIM). Facultatif.",
           ),
       },
       annotations: {

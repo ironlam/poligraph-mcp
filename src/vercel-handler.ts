@@ -107,25 +107,6 @@ async function handleRequest(
     return;
   }
 
-  const ua = req.headers["user-agent"] ?? "unknown";
-  const accept = req.headers["accept"] ?? "none";
-
-  // Keep operational metadata only. Tool arguments may contain user queries and
-  // must not be copied to infrastructure logs.
-  if (Array.isArray(req.body)) {
-    for (const msg of req.body) {
-      console.log(
-        `[${ts}] ${req.method} ${msg.method ?? "notification"} | id=${msg.id ?? "-"} | ua=${ua} | accept=${accept}`,
-      );
-    }
-  } else if (req.body?.method) {
-    console.log(
-      `[${ts}] ${req.method} ${req.body.method} | id=${req.body.id ?? "-"} | ua=${ua} | accept=${accept}`,
-    );
-  } else {
-    console.log(`[${ts}] ${req.method} (no body) | ua=${ua} | accept=${accept}`);
-  }
-
   try {
     const server = dependencies.createMcpServer();
     const transport = dependencies.createTransport();
@@ -137,8 +118,8 @@ async function handleRequest(
 
     await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
-  } catch (e) {
-    console.error(`[${ts}] ERROR:`, e);
+  } catch {
+    console.error(JSON.stringify({ timestamp: ts, event: "MCP_TRANSPORT_ERROR" }));
     if (!res.headersSent) {
       res.status(500).json({
         jsonrpc: "2.0",

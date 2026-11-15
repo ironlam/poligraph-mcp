@@ -607,8 +607,11 @@ test("invalid Origin configuration makes the Vercel handler fail closed", async 
   assertNoMcpResourceInitialization(context, "invalid configuration");
 });
 
-test("the nominal Vercel path uses the injected MCP factories", async () => {
-  console.log = () => {};
+test("the nominal Vercel path uses the MCP factories without logging request metadata", async () => {
+  const messages: unknown[] = [];
+  console.log = (...args: unknown[]) => {
+    messages.push(args);
+  };
   const context = createHandlerTestContext();
   const body = {
     jsonrpc: "2.0",
@@ -647,4 +650,5 @@ test("the nominal Vercel path uses the injected MCP factories", async () => {
   );
   assert.equal(context.calls.serverClose, 0);
   assert.equal(context.calls.transportClose, 0);
+  assert.deepEqual(messages, []);
 });

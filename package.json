@@ -14,7 +14,7 @@
     "start:http": "node build/http.js",
     "dev:http": "tsc && node build/http.js",
     "test": "npm run test:unit && npm run test:contract",
-    "test:unit": "node --test build/tests/editorial.test.js build/tests/api.test.js build/tests/tool-metadata.test.js build/tests/http-origin.test.js build/tests/landing-page.test.js build/tests/marketplace-submission.test.js",
+    "test:unit": "node --test build/tests/affair-tools.test.js build/tests/editorial.test.js build/tests/api.test.js build/tests/tool-metadata.test.js build/tests/http-origin.test.js build/tests/landing-page.test.js build/tests/marketplace-submission.test.js",
     "test:contract": "node --test build/tests/api-contract.test.js",
     "test:build": "tsc && npm test"
   },
@@ -31,7 +31,7 @@
     "@modelcontextprotocol/sdk": "^1.26.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "zod": "^3.24.0"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

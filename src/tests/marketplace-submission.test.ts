@@ -190,7 +190,7 @@ test("Claude listing limits and neutral use cases are enforced", () => {
   assert.ok(typeof serverName === "string");
   assert.ok(serverName.length > 0 && serverName.length <= 100);
   assert.ok(typeof tagline === "string");
-  assert.ok(tagline.length > 0 && tagline.length <= 55);
+  assert.ok(tagline.length > 0 && tagline.length <= 200);
   assert.ok(typeof description === "string");
   assert.ok(description.length > 0 && description.length <= 2_000);
   assert.ok(

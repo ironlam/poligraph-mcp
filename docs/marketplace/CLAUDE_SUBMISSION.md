@@ -31,7 +31,7 @@ Le nom comporte moins de 100 caractères.
 
 > Données sourcées sur la vie politique française
 
-La tagline comporte moins de 55 caractères.
+Le portail accepte une accroche de 200 caractères maximum.
 
 ### Description
 
@@ -100,21 +100,36 @@ La description comporte moins de 2 000 caractères.
 
 ## Checklist compte et tests
 
-- [ ] Organisation Claude Team ou Enterprise confirmée
-- [ ] Rôle permettant la gestion du Directory confirmé
+- [ ] Compte Claude payant confirmé. Les comptes individuels Pro, Max et Ultra peuvent soumettre.
+- [ ] Pour Team et Enterprise, utiliser un compte Owner. Un Owner Enterprise peut déléguer le droit Directory.
 - [ ] Identité de l’Association Sankofa cohérente avec les pages publiques
 - [ ] Chaque tool testé avec MCP Inspector ou un connecteur Claude personnalisé
 - [ ] URL et listing revus dans le portail
-- [ ] Test Claude officiel exécuté
+- [ ] Les 19 outils sont appelés depuis des conversations avec un connecteur Claude personnalisé.
+- [ ] Les sept attestations de l’étape Compliance sont vérifiées par l’éditeur.
 - [ ] Autorisation explicite de soumettre donnée par Lamine
 
 ## Choix humains ouverts
 
 - Slug candidat : `poligraph`, sous réserve de sélection humaine et de disponibilité.
-- Catégories à sélectionner dans le portail. Concepts candidats : Recherche, Éducation, Données
+- Une à cinq catégories à sélectionner dans le portail. Concepts candidats : Recherche, Éducation, Données
   publiques, Information. Ces libellés ne sont pas présentés comme des valeurs garanties du
   portail.
 - Validation humaine finale de la fiche.
 - Autorisation explicite avant toute soumission.
 
 Statut de toutes les étapes de portail : non exécutées.
+
+## Saisie dans le portail
+
+1. Dans le [portail Claude](https://claude.ai/directory/manage), choisir **Submit new**, puis **MCP connector**.
+2. Dans **Connection**, saisir l’URL HTTPS universelle et utiliser l’accès sans authentification.
+3. Dans **Tools**, vérifier les 19 outils synchronisés, leurs titres et leur classement en lecture seule.
+4. Dans **Listing**, saisir les textes ci-dessus, les URLs, l’icône, les catégories et le slug. Le slug devient permanent après publication.
+5. Dans **Use cases** et **Company**, saisir les cas d’usage et les coordonnées ci-dessus.
+6. Dans **Data handling**, déclarer l’API de première partie et la nature des données politiques et judiciaires publiques. Le connecteur ne traite pas de données de santé et ne fournit pas de contenu sponsorisé.
+7. Dans **Test & launch**, faire confirmer par la personne qui soumet les tests de chaque outil. Relire aussi le résultat dans Claude, y compris les sources, les rôles judiciaires et les valeurs absentes.
+8. Dans **Compliance**, vérifier les attestations relatives à l’annuaire, l’API de première partie, les transactions, la génération de médias, la protection contre les instructions issues de sources, la collecte de données de conversation et la documentation publique.
+9. Dans **Review and submit**, relire puis attendre l’accord explicite couvrant la mise en ligne automatique. Après le contrôle automatisé, Anthropic peut publier directement la fiche Community.
+
+[Guide officiel Claude](https://claude.com/docs/connectors/building/submission) · [Habilitations](https://claude.com/docs/directory/publish) · [Critères de revue](https://claude.com/docs/connectors/building/review-criteria) · [Politique Anthropic](https://support.claude.com/en/articles/13145358-anthropic-software-directory-policy)
