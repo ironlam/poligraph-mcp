@@ -29,8 +29,8 @@ const transport = new StreamableHTTPClientTransport(new URL(endpoint), {
     fetch(url, {
       ...options,
       signal: options?.signal
-        ? AbortSignal.any([options.signal, AbortSignal.timeout(20000)])
-        : AbortSignal.timeout(20000),
+        ? AbortSignal.any([options.signal, AbortSignal.timeout(30000)])
+        : AbortSignal.timeout(30000),
     }),
 });
 try {

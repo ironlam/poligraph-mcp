@@ -19,6 +19,20 @@ test("fetchAPI parses a bounded JSON response", async () => {
   assert.deepEqual(result, { ok: true });
 });
 
+test("only the vote aggregate uses the extended public API timeout", async (t) => {
+  const durations: number[] = [];
+  t.mock.method(AbortSignal, "timeout", (duration: number) => {
+    durations.push(duration);
+    return new AbortController().signal;
+  });
+  globalThis.fetch = async () => Response.json({});
+
+  await fetchAPI("/api/votes/stats", { chamber: "AN" });
+  await fetchAPI("/api/votes");
+
+  assert.deepEqual(durations, [20_000, 10_000]);
+});
+
 test("fetchAPI never reflects an arbitrary upstream HTML error body", async () => {
   globalThis.fetch = async () =>
     new Response("<html>private proxy diagnostics</html>", { status: 502 });

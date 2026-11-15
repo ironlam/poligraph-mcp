@@ -1,6 +1,7 @@
 const BASE_URL = "https://poligraph.fr";
 const BASE_ORIGIN = new URL(BASE_URL).origin;
 const REQUEST_TIMEOUT_MS = 10_000;
+const VOTE_STATS_TIMEOUT_MS = 20_000;
 const MAX_RESPONSE_BYTES = 2_000_000;
 
 /**
@@ -131,6 +132,9 @@ export async function fetchAPI<T>(
     }
   }
 
+  // Cold vote aggregates can take longer than ordinary public reads.
+  const timeoutMs =
+    url.pathname === "/api/votes/stats" ? VOTE_STATS_TIMEOUT_MS : REQUEST_TIMEOUT_MS;
   let response: Response;
   try {
     response = await fetch(url.toString(), {
@@ -139,7 +143,7 @@ export async function fetchAPI<T>(
         "User-Agent": "poligraph-mcp/2.0",
       },
       redirect: "error",
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
     if (isTimeoutError(error)) {
