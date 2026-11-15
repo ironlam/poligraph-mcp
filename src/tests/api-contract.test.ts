@@ -740,6 +740,7 @@ describe("Contrat RGPD art. 10 — affaires publiées uniquement", () => {
       );
       assert.ok(typeof affair.title === "string");
       assert.ok(typeof affair.status === "string");
+      assert.equal(typeof affair.appeal, "boolean", "affair.appeal");
     }
   });
 

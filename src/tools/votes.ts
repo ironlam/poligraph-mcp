@@ -404,7 +404,7 @@ export function registerVoteTools(server: McpServer): void {
       lines.push("## Vue globale");
       lines.push(`- **Total scrutins** : ${data.global.totalScrutins}`);
       lines.push(
-        `- **Total votes exprimés recensés** : ${data.global.totalVotes}`,
+        `- **Total des votes recensés (abstentions comprises)** : ${data.global.totalVotes}`,
       );
       lines.push(`- Pour : ${data.global.totalVotesFor}`);
       lines.push(`- Contre : ${data.global.totalVotesAgainst}`);
